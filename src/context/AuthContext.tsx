@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
 
         if (mockUser.hasActiveSubscription) {
-            router.push('/dashboard');
+            router.push('/');
         } else {
             router.push('/billing');
         }
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const updatedUser = { ...user, hasActiveSubscription: true };
             setUser(updatedUser);
             localStorage.setItem('aph_user', JSON.stringify(updatedUser));
-            router.push('/dashboard');
+            router.push('/');
         }
         setIsLoading(false);
     };
