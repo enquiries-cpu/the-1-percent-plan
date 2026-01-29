@@ -29,6 +29,22 @@ export const gymnasticsData = [
                     { day: 'Day 4', focus: 'Active Recovery', exercises: ['Z-Press (4x10)', 'Skin the Cat (3 sets)'] },
                     { day: 'Day 5', focus: 'Endurance', exercises: ['Strict T2B (3 sets of Max - 2)', 'Dead Hangs (3x45s)'] }
                 ]
+            },
+            {
+                week: 3,
+                title: 'Volume Peak',
+                days: [
+                    { day: 'Day 1', focus: 'Density', exercises: ['Strict T2B (EMOM 12: 4-6 reps)'] },
+                    { day: 'Day 2', focus: 'Accessory', exercises: ['Toes-to-Rings (4x8)', 'Candlesticks (3x10)'] }
+                ]
+            },
+            {
+                week: 4,
+                title: 'Test Week',
+                days: [
+                    { day: 'Day 1', focus: 'Activation', exercises: ['V-Ups (3x15)', 'Kip Swings (3x10)'] },
+                    { day: 'Day 2', focus: 'Max Test', exercises: ['Strict T2B (Max unbroken reps)'] }
+                ]
             }
         ],
         color: '#4caf50'
@@ -56,6 +72,37 @@ export const gymnasticsData = [
                 days: [
                     { day: 'Day 1', focus: 'Transition Strength', exercises: ['Russian Dips', 'Straight Bar Dips'] },
                     { day: 'Day 2', focus: 'Complexes', exercises: ['1 Chest-to-Bar + 1 Bar MU', 'Jumping Bar MU'] }
+                ]
+            },
+            {
+                week: 3,
+                title: 'Transition Speed',
+                days: [
+                    { day: 'Day 1', focus: 'Speed Drills', exercises: ['Band Lat Pulldowns (Fast)', 'Hip to Bar drills'] },
+                    { day: 'Day 2', focus: 'Low Bar Work', exercises: ['Assisted Transition from floor'] }
+                ]
+            },
+            {
+                week: 4,
+                title: 'Eccentric Control',
+                days: [
+                    { day: 'Day 1', focus: 'Negatives', exercises: ['Bar MU Negatives (3x3 - 5s down)'] },
+                    { day: 'Day 2', focus: 'Top Support', exercises: ['Support Holds', 'Dips'] }
+                ]
+            },
+            {
+                week: 5,
+                title: 'Integration',
+                days: [
+                    { day: 'Day 1', focus: 'Attempts', exercises: ['3x5 Attempts with light band'] },
+                    { day: 'Day 2', focus: 'Linked Reps', exercises: ['Attempts at linking 2 reps'] }
+                ]
+            },
+            {
+                week: 6,
+                title: 'Mastery',
+                days: [
+                    { day: 'Day 1', focus: 'Test', exercises: ['Max Reps Bar MU'] }
                 ]
             }
         ],
@@ -85,6 +132,49 @@ export const gymnasticsData = [
                     { day: 'Day 1', focus: 'Transition Mechanics', exercises: ['Ring MU Transitions', 'Baby Muscle-Ups'] },
                     { day: 'Day 2', focus: 'Pulling Power', exercises: ['Weighted Pull-Ups', 'Explosive High Pulls'] }
                 ]
+            },
+            {
+                week: 3,
+                title: 'Deep Support',
+                days: [
+                    { day: 'Day 1', focus: 'Deep Dips', exercises: ['Deep Ring Dips (4x6)'] },
+                    { day: 'Day 2', focus: 'Catch', exercises: ['Catch Position Holds (4x10s)'] }
+                ]
+            },
+            {
+                week: 4,
+                title: 'Deload',
+                days: [
+                    { day: 'Day 1', focus: 'Mobility', exercises: ['Shoulder Extension', 'Internal Rotation'] }
+                ]
+            },
+            {
+                week: 5,
+                title: 'Efficiency',
+                days: [
+                    { day: 'Day 1', focus: 'Kipping', exercises: ['Ring Kips (4x10)', 'Kip to Support attempts'] }
+                ]
+            },
+            {
+                week: 6,
+                title: 'Complexes',
+                days: [
+                    { day: 'Day 1', focus: 'Building', exercises: ['3 False Grip Pull Ups + 3 Dips'] }
+                ]
+            },
+            {
+                week: 7,
+                title: 'Fatigue Management',
+                days: [
+                    { day: 'Day 1', focus: 'EMOM', exercises: ['EMOM 10: 1 Ring MU (or attempt)'] }
+                ]
+            },
+            {
+                week: 8,
+                title: 'Full Test',
+                days: [
+                    { day: 'Day 1', focus: 'Max Set', exercises: ['Max Unbroken Ring Muscle-Ups'] }
+                ]
             }
         ],
         color: '#ff9800'
@@ -105,6 +195,29 @@ export const gymnasticsData = [
                     { day: 'Day 1', focus: 'Rhythm Drills', exercises: ['Small Circles (Box drill)', 'Reverse Bicycle Kicks'] },
                     { day: 'Day 2', focus: 'Eccentric Strength', exercises: ['Negatives (3x5)', 'Scapular Pull-Ups'] }
                 ]
+            },
+            {
+                week: 2,
+                title: 'Speed',
+                days: [
+                    { day: 'Day 1', focus: 'Small Circles', exercises: ['Rapid small circles (4x15)'] },
+                    { day: 'Day 2', focus: 'Pulling', exercises: ['Chin over bar hold (4x15s)'] }
+                ]
+            },
+            {
+                week: 3,
+                title: 'Volume',
+                days: [
+                    { day: 'Day 1', focus: 'Integration', exercises: ['Butterfly Pull-ups (4x5)'] },
+                    { day: 'Day 2', focus: 'Capacity', exercises: ['EMOM 8: 5 reps'] }
+                ]
+            },
+            {
+                week: 4,
+                title: 'Test',
+                days: [
+                    { day: 'Day 1', focus: 'Max', exercises: ['Max Butterfly Pull-ups'] }
+                ]
             }
         ],
         color: '#9c27b0'
@@ -124,6 +237,42 @@ export const gymnasticsData = [
                 days: [
                     { day: 'Day 1', focus: 'Straight Arm Strength', exercises: ['Planche Leans', 'German Hang'] },
                     { day: 'Day 2', focus: 'Scapular Health', exercises: ['Crossover Symmetry', 'Prone Y-T-W Raises'] }
+                ]
+            },
+            {
+                week: 2,
+                title: 'Wrist Health',
+                days: [
+                    { day: 'Day 1', focus: 'Flexion/Extension', exercises: ['Wrist Pushups', 'Rice Bucket'] },
+                    { day: 'Day 2', focus: 'Elbows', exercises: ['Zottman Curls'] }
+                ]
+            },
+            {
+                week: 3,
+                title: 'Planche Prep',
+                days: [
+                    { day: 'Day 1', focus: 'Protract', exercises: ['Scap Pushups (Weighted)', 'Planche Lean (Max hold)'] }
+                ]
+            },
+            {
+                week: 4,
+                title: 'Front Lever Prep',
+                days: [
+                    { day: 'Day 1', focus: 'Retract', exercises: ['Tuck Lever Hold', 'Ice Cream Makers'] }
+                ]
+            },
+            {
+                week: 5,
+                title: 'Mobility + Strength',
+                days: [
+                    { day: 'Day 1', focus: 'Jefferson Curl', exercises: ['Jefferson Curl (5x5 slow)'] }
+                ]
+            },
+            {
+                week: 6,
+                title: 'Flow',
+                days: [
+                    { day: 'Day 1', focus: 'Movement', exercises: ['Ido Portal Locomotion'] }
                 ]
             }
         ],
