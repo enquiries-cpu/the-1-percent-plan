@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { gymnasticsData } from '@/lib/gymnasticsData';
 import Link from 'next/link';

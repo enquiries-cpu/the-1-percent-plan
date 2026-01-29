@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { programsData } from '@/lib/programData';
 import Link from 'next/link';
