@@ -40,7 +40,7 @@ export default function LiftingPage() {
                                 {activeProgram ? activeProgram.title : 'Snatch (Competition)'}
                             </h2>
                             <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
-                                {activeProgram ? `Week 1 • Day 1 • ${activeProgram.weeks[0].days[0].focus}` : 'Category A • Gap Method Active'}
+                                {activeProgram ? (activeProgram.weeks ? `Week 1 • Day 1 • ${activeProgram.weeks[0]?.days[0]?.focus}` : `Day 1 • ${activeProgram.schedule?.[0]?.focus}`) : 'Category A • Gap Method Active'}
                             </p>
                         </div>
                         <div style={{
@@ -57,7 +57,7 @@ export default function LiftingPage() {
 
                     {activeProgram ? (
                         <div style={{ marginTop: 'var(--spacing-lg)' }}>
-                            {activeProgram.weeks[0].days[0].exercises.map((exercise: string, index: number) => (
+                            {(activeProgram.weeks ? activeProgram.weeks[0]?.days[0]?.exercises : activeProgram.schedule?.[0]?.exercises || []).map((exercise: string, index: number) => (
                                 <div key={index} style={{
                                     display: 'flex',
                                     alignItems: 'center',
