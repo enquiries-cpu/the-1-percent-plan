@@ -1,12 +1,12 @@
-'use client';
-
+import { useState } from 'react';
 import { programsData } from '@/lib/programData';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle, ChevronRight } from 'lucide-react';
 
 export default function ProgramDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
+    const [activeWeek, setActiveWeek] = useState(1);
     const program = programsData.find(p => p.id === parseInt(params.id));
 
     const handleEnroll = () => {
@@ -24,6 +24,8 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
             </div>
         );
     }
+
+    const currentWeekData = program.weeks?.find(w => w.week === activeWeek) || program.weeks?.[0];
 
     return (
         <div className="container" style={{ padding: 'var(--spacing-lg) var(--spacing-md)' }}>
@@ -57,77 +59,98 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                 </div>
             </header>
 
-
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-xl)' }}>
                 {/* Main Content */}
                 <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
 
-                    {/* Science Section */}
+                    {/* Week Selector */}
                     <section style={{ marginBottom: 'var(--spacing-xl)' }}>
-                        <h2 style={{ display: 'flex', alignItems: 'center', fontSize: '1.5rem', marginBottom: 'var(--spacing-md)' }}>
-                            <BookOpen size={24} style={{ marginRight: '12px', color: 'var(--color-text-primary)' }} />
-                            The Logic (Science-Based)
-                        </h2>
-                        <div style={{
-                            background: 'var(--color-surface)',
-                            padding: 'var(--spacing-lg)',
-                            borderRadius: 'var(--radius-md)',
-                            lineHeight: '1.6',
-                            color: 'var(--color-text-secondary)',
-                            borderLeft: `4px solid ${program.color}`
-                        }}>
-                            <div dangerouslySetInnerHTML={{ __html: program.science.replace(/\*\*(.*?)\*\*/g, '<strong style="color:white">$1</strong>') }} />
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: 'var(--spacing-md)', letterSpacing: '0.05em' }}>TRAINING BLOCKS</h2>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px' }}>
+                            {program.weeks?.map((w) => (
+                                <button
+                                    key={w.week}
+                                    onClick={() => setActiveWeek(w.week)}
+                                    style={{
+                                        padding: '16px',
+                                        background: activeWeek === w.week ? 'white' : 'var(--color-surface)',
+                                        color: activeWeek === w.week ? 'black' : 'white',
+                                        border: `1px solid ${activeWeek === w.week ? program.color : 'var(--color-surface-hover)'}`,
+                                        borderRadius: 'var(--radius-md)',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    <div style={{ fontSize: '0.7rem', fontWeight: '900', opacity: 0.6 }}>WEEK {w.week}</div>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: '800', marginTop: '4px' }}>{w.title.toUpperCase()}</div>
+                                </button>
+                            ))}
                         </div>
                     </section>
 
                     {/* Schedule Section */}
-                    <section>
-                        <h2 style={{ display: 'flex', alignItems: 'center', fontSize: '1.5rem', marginBottom: 'var(--spacing-md)' }}>
-                            <Calendar size={24} style={{ marginRight: '12px', color: 'var(--color-text-primary)' }} />
-                            Weekly Schedule
-                        </h2>
-                        <div style={{ display: 'grid', gap: 'var(--spacing-md)' }}>
-                            {program.schedule.map((day, idx) => (
-                                <div key={idx} style={{
-                                    background: 'var(--color-surface)',
-                                    padding: 'var(--spacing-md)',
-                                    borderRadius: 'var(--radius-md)',
-                                    display: 'flex',
-                                    flexDirection: 'column'
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                        <span style={{ fontWeight: 'bold', color: 'white' }}>{day.day}</span>
-                                        <span style={{ fontSize: '0.875rem', color: program.color }}>{day.focus}</span>
+                    {currentWeekData && (
+                        <section>
+                            <h2 style={{ display: 'flex', alignItems: 'center', fontSize: '1.5rem', marginBottom: 'var(--spacing-md)' }}>
+                                <Calendar size={24} style={{ marginRight: '12px', color: 'var(--color-text-primary)' }} />
+                                Week {activeWeek}: {currentWeekData.title}
+                            </h2>
+                            <div style={{ display: 'grid', gap: 'var(--spacing-md)' }}>
+                                {currentWeekData.days.map((day, idx) => (
+                                    <div key={idx} style={{
+                                        background: 'var(--color-surface)',
+                                        padding: 'var(--spacing-md)',
+                                        borderRadius: 'var(--radius-md)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        border: '1px solid var(--color-surface-hover)'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center' }}>
+                                            <span style={{ fontWeight: '900', color: 'white', letterSpacing: '0.05em' }}>{day.day.toUpperCase()}</span>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: program.color, background: `${program.color}15`, padding: '4px 8px', borderRadius: '4px' }}>{day.focus.toUpperCase()}</span>
+                                        </div>
+                                        <div style={{ paddingLeft: '12px', borderLeft: `2px solid ${program.color}40` }}>
+                                            {day.exercises.map((ex, i) => (
+                                                <div key={i} style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                                                    <ChevronRight size={14} style={{ marginRight: '8px', color: program.color, opacity: 0.5 }} />
+                                                    {ex}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div style={{ paddingLeft: '12px', borderLeft: '2px solid var(--color-surface-hover)' }}>
-                                        {day.exercises.map((ex, i) => (
-                                            <div key={i} style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                                                • {ex}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                                ))}
+                            </div>
+                        </section>
+                    )}
                 </div>
 
-                {/* Sidebar / Stats */}
+                {/* Sidebar / Logic */}
                 <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                    <div style={{ background: 'var(--color-surface)', padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-lg)', position: 'sticky', top: '20px' }}>
-                        <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-md)' }}>Expected Results</h3>
+                    <div style={{ background: 'var(--color-surface)', padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-lg)', position: 'sticky', top: '20px', border: '1px solid var(--color-surface-hover)' }}>
+                        <h3 style={{ display: 'flex', alignItems: 'center', fontSize: '1.25rem', marginBottom: 'var(--spacing-md)' }}>
+                            <BookOpen size={20} style={{ marginRight: '10px' }} /> The Science
+                        </h3>
+                        <div style={{
+                            lineHeight: '1.6',
+                            color: 'var(--color-text-secondary)',
+                            fontSize: '0.9rem',
+                            paddingBottom: '20px',
+                            borderBottom: '1px solid var(--color-surface-hover)',
+                            marginBottom: '20px'
+                        }}>
+                            <div dangerouslySetInnerHTML={{ __html: program.science.replace(/\*\*(.*?)\*\*/g, '<strong style="color:white">$1</strong>') }} />
+                        </div>
+
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: 'var(--spacing-md)' }}>Elite Outcomes</h3>
                         <ul style={{ listStyle: 'none', padding: 0 }}>
                             <li style={{ display: 'flex', marginBottom: '12px', alignItems: 'start' }}>
                                 <CheckCircle size={18} color="var(--color-success)" style={{ marginRight: '10px', marginTop: '2px' }} />
-                                <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Improve {program.focus} markers significantly.</span>
+                                <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Compound {program.focus} Gains.</span>
                             </li>
                             <li style={{ display: 'flex', marginBottom: '12px', alignItems: 'start' }}>
                                 <CheckCircle size={18} color="var(--color-success)" style={{ marginRight: '10px', marginTop: '2px' }} />
-                                <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Based on {program.science.includes('Linear') ? 'Linear' : 'Advanced'} periodization.</span>
-                            </li>
-                            <li style={{ display: 'flex', marginBottom: '12px', alignItems: 'start' }}>
-                                <CheckCircle size={18} color="var(--color-success)" style={{ marginRight: '10px', marginTop: '2px' }} />
-                                <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Scalable to {program.level}.</span>
+                                <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Mastery-based progression.</span>
                             </li>
                         </ul>
                     </div>

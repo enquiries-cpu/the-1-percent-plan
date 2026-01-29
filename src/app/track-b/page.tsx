@@ -52,7 +52,7 @@ export default function GymnasticsPage() {
                             <div>
                                 <h2 style={{ fontSize: '1.25rem', marginBottom: '4px' }}>{activeProgram.title}</h2>
                                 <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
-                                    Day 1 • {activeProgram.schedule[0].focus}
+                                    Week 1 • Day 1 • {activeProgram.weeks[0].days[0].focus}
                                 </p>
                             </div>
                             <div style={{
@@ -68,7 +68,7 @@ export default function GymnasticsPage() {
                         </div>
 
                         <div style={{ marginTop: 'var(--spacing-lg)' }}>
-                            {activeProgram.schedule[0].exercises.map((exercise: string, index: number) => (
+                            {activeProgram.weeks[0].days[0].exercises.map((exercise: string, index: number) => (
                                 <div key={index} style={{
                                     display: 'flex',
                                     alignItems: 'center',
