@@ -123,80 +123,11 @@ export default function GymnasticsPage() {
                 </div>
 
                 {/* Skill Tree (Secondary) */}
+                {/* Skill Tree (Secondary) - Removed */}
                 {!activeProgram && (
-                    <>
-                        <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-md)' }}>Skill Tree (Level 4)</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', position: 'relative' }}>
-                            {/* Connector Line */}
-                            <div style={{
-                                position: 'absolute',
-                                top: '20px',
-                                bottom: '20px',
-                                left: '20px',
-                                width: '2px',
-                                background: 'var(--color-surface-hover)',
-                                zIndex: 0
-                            }} />
-
-                            {skills.map((skill, index) => {
-                                const isCompleted = skill.status === 'completed';
-                                const isActive = skill.status === 'active';
-
-                                return (
-                                    <div key={skill.id} style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        zIndex: 1,
-                                        opacity: skill.status === 'locked' ? 0.5 : 1
-                                    }}>
-                                        {/* Icon Status */}
-                                        <div style={{
-                                            width: '42px',
-                                            height: '42px',
-                                            borderRadius: '50%',
-                                            background: isActive ? 'var(--color-brand-blue)' : 'var(--color-surface)',
-                                            border: isCompleted ? '2px solid var(--color-success)' : isActive ? '4px solid rgba(33, 150, 243, 0.3)' : '2px solid var(--color-surface-hover)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            marginRight: 'var(--spacing-md)',
-                                            color: isCompleted ? 'var(--color-success)' : 'white'
-                                        }}>
-                                            {isCompleted ? <CheckCircle size={20} /> : skill.status === 'locked' ? <Lock size={16} /> : <Circle size={16} fill="white" />}
-                                        </div>
-
-                                        {/* Card */}
-                                        <div style={{
-                                            flex: 1,
-                                            background: 'var(--color-surface)',
-                                            padding: '16px',
-                                            borderRadius: 'var(--radius-md)',
-                                            border: isActive ? '1px solid var(--color-brand-blue)' : '1px solid transparent',
-                                        }}>
-                                            <h3 style={{ fontSize: '1rem' }}>{skill.name}</h3>
-                                            {isActive && (
-                                                <div style={{ marginTop: '8px' }}>
-                                                    <div style={{
-                                                        height: '4px',
-                                                        background: 'var(--color-surface-hover)',
-                                                        borderRadius: '4px',
-                                                        overflow: 'hidden'
-                                                    }}>
-                                                        <div style={{
-                                                            width: '60%',
-                                                            height: '100%',
-                                                            background: 'var(--color-brand-blue)'
-                                                        }} />
-                                                    </div>
-                                                    <p style={{ fontSize: '0.75rem', marginTop: '4px', color: 'var(--color-text-muted)' }}>3/5 Drills Completed</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </>
+                    <div style={{ textAlign: 'center', padding: 'var(--spacing-xl)', color: 'var(--color-text-muted)' }}>
+                        <p>Select a program to view details.</p>
+                    </div>
                 )}
             </div>
         </ProtectedRoute>

@@ -117,36 +117,7 @@ export default function Home() {
                     </div>
                 </Link>
 
-                {/* Track B: Gymnastics */}
-                <Link href="/track-b" className="animate-fade-in" style={{
-                    background: 'linear-gradient(135deg, var(--color-surface) 0%, rgba(33, 150, 243, 0.05) 100%)',
-                    borderRadius: 'var(--radius-lg)',
-                    padding: 'var(--spacing-lg)',
-                    display: 'block',
-                    border: '1px solid var(--color-surface-hover)',
-                    transition: 'all 0.2s',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-                    animationDelay: '0.1s'
-                }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-md)' }}>
-                        <div style={{
-                            background: 'rgba(33, 150, 243, 0.1)',
-                            padding: '12px',
-                            borderRadius: 'var(--radius-md)',
-                            color: 'var(--color-brand-blue)'
-                        }}>
-                            <Activity size={24} />
-                        </div>
-                        <span style={{ fontSize: '0.7rem', fontWeight: '800', letterSpacing: '0.1em', color: 'var(--color-text-muted)' }}>PHASE: SKILL</span>
-                    </div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: 'var(--spacing-xs)' }}>GYMNASTICS</h3>
-                    <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)', fontSize: '0.875rem', lineHeight: '1.5' }}>
-                        Qualitative mastery trees. Level 4 elite progression.
-                    </p>
-                    <div className="btn" style={{ width: '100%', background: 'rgba(255, 255, 255, 0.05)', color: 'white', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                        VIEW SKILLS
-                    </div>
-                </Link>
+
 
                 {/* Track C: Metabolic */}
                 <Link href="/track-c" className="animate-fade-in" style={{

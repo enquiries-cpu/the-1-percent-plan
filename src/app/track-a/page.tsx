@@ -85,17 +85,9 @@ export default function LiftingPage() {
                             ))}
                         </div>
                     ) : (
-                        <>
-                            <div style={{ margin: 'var(--spacing-lg) 0', textAlign: 'center' }}>
-                                <div style={{ fontSize: '3.5rem', fontWeight: '800', fontFamily: 'monospace' }}>92<span style={{ fontSize: '1.5rem', color: 'var(--color-text-secondary)' }}>kg</span></div>
-                                <p style={{ color: 'var(--color-text-muted)' }}>Auto-regulated based on RPE 7</p>
-                            </div>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)' }}>
-                                <button className="btn btn-secondary" style={{ width: '100%' }}>RPE 7</button>
-                                <button className="btn btn-secondary" style={{ width: '100%' }}>RPE 8</button>
-                            </div>
-                        </>
+                        <div style={{ margin: 'var(--spacing-lg) 0', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                            Select a program to start lifting.
+                        </div>
                     )}
                 </section>
 
@@ -121,27 +113,7 @@ export default function LiftingPage() {
                     </Link>
                 </div>
 
-                {/* History/Analytics Preview */}
-                <div style={{ marginTop: 'var(--spacing-lg)', display: 'flex', gap: 'var(--spacing-sm)', overflowX: 'auto', paddingBottom: '8px' }}>
-                    <div style={{
-                        minWidth: '140px',
-                        background: 'var(--color-surface)',
-                        padding: 'var(--spacing-md)',
-                        borderRadius: 'var(--radius-md)'
-                    }}>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Best 1RM</p>
-                        <p style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>108kg</p>
-                    </div>
-                    <div style={{
-                        minWidth: '140px',
-                        background: 'var(--color-surface)',
-                        padding: 'var(--spacing-md)',
-                        borderRadius: 'var(--radius-md)'
-                    }}>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Avg Velocity</p>
-                        <p style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>1.8 m/s</p>
-                    </div>
-                </div>
+
             </div>
         </ProtectedRoute>
     );
