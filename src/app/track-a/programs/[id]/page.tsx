@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { programsData } from '@/lib/programData';
+import PercentageCalculator from '@/components/shared/PercentageCalculator';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle, ChevronRight } from 'lucide-react';
@@ -155,6 +156,10 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                                 <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Mastery-based progression.</span>
                             </li>
                         </ul>
+                    </div>
+
+                    <div style={{ marginTop: 'var(--spacing-md)' }}>
+                        <PercentageCalculator color={program.color} title="Load Calculator" />
                     </div>
                 </div>
 
