@@ -277,5 +277,64 @@ export const gymnasticsData = [
             }
         ],
         color: '#607d8b'
+    },
+    {
+        id: 6,
+        title: 'Handstand Push-Up Power',
+        duration: '6 Weeks',
+        level: 'Advanced',
+        focus: 'Vertical Pressing & Balance',
+        description: 'Build the immense overhead strength and balance required for strict and kipping handstand push-ups.',
+        science: 'Utilizes **Vertical Pressing Mechanics** and **Inversion Tolerance**. Prioritizes **Tripod Position** stability and **Overhead Lockout** strength. The program progressively increases range of motion (deficit work) and density (volume) to build capacity.',
+        weeks: [
+            {
+                week: 1,
+                title: 'Strict Strength Base',
+                days: [
+                    { day: 'Day 1', focus: 'Vertical Pressing', exercises: ['Box Pike Push-Ups (4x8-10)', 'Strict Press (4x8)'] },
+                    { day: 'Day 2', focus: 'Inversion', exercises: ['Wall Walks (3x3)', 'Handstand Hold (Accumulate 60s)'] }
+                ]
+            },
+            {
+                week: 2,
+                title: 'Eccentric Control',
+                days: [
+                    { day: 'Day 1', focus: 'Negatives', exercises: ['Strict HSPU Negatives (5x3 @ 3s down)', 'Z-Press (4x10)'] },
+                    { day: 'Day 2', focus: 'Stability', exercises: ['Shoulder Taps (Box or Wall) (3x20)', 'Hollow Body Hold (4x30s)'] }
+                ]
+            },
+            {
+                week: 3,
+                title: 'Kipping Mechanics',
+                days: [
+                    { day: 'Day 1', focus: 'The Kip', exercises: ['Headstand Kips (Non-pressing) (4x10)', 'Wall Kips (4x5)'] },
+                    { day: 'Day 2', focus: 'Volume', exercises: ['Box Pike Push-Ups (5x10)', 'DB Push Press (4x12)'] }
+                ]
+            },
+            {
+                week: 4,
+                title: 'Deficit Strength',
+                days: [
+                    { day: 'Day 1', focus: 'Range of Motion', exercises: ['Deficit Pike Push-Ups (4x8)', 'Close Grip Bench Press (4x8)'] },
+                    { day: 'Day 2', focus: 'Kip Integration', exercises: ['Kipping HSPU (EMOM 8: 2-3 reps)', 'Strict Pull-Ups (4x6)'] }
+                ]
+            },
+            {
+                week: 5,
+                title: 'Volume & Capacity',
+                days: [
+                    { day: 'Day 1', focus: 'Density', exercises: ['Strict HSPU (or mod) (EMOM 10: 3-5 reps)'] },
+                    { day: 'Day 2', focus: 'Kipping Capacity', exercises: ['Kipping HSPU (3 sets of Max - 2)', 'Handstand Walk Drills (15 mins)'] }
+                ]
+            },
+            {
+                week: 6,
+                title: 'Test Week',
+                days: [
+                    { day: 'Day 1', focus: 'Max Effort', exercises: ['Max Strict HSPU', 'Max Kipping HSPU'] }
+                ]
+            }
+        ],
+        color: '#e91e63'
     }
 ];
