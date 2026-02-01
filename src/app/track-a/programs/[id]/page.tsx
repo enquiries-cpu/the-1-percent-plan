@@ -13,9 +13,15 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
     const [liftRms, setLiftRms] = useState({
         snatch: '',
         'clean & jerk': '',
+        'power snatch': '',
+        'power clean': '',
         'back squat': '',
         'front squat': '',
-        deadlift: ''
+        deadlift: '',
+        'push press': '',
+        'strict press': '',
+        'bench press': '',
+        'overhead squat': ''
     });
 
     useEffect(() => {
@@ -36,25 +42,55 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         if (!percentMatch) return ex;
 
         const percent = parseInt(percentMatch[1]);
-        let baseLift = '';
-
         const lowerEx = ex.toLowerCase();
-        if (lowerEx.includes('snatch')) baseLift = 'snatch';
-        else if (lowerEx.includes('clean') || lowerEx.includes('jerk')) baseLift = 'clean & jerk';
-        else if (lowerEx.includes('back squat')) baseLift = 'back squat';
-        else if (lowerEx.includes('front squat')) baseLift = 'front squat';
-        else if (lowerEx.includes('deadlift') || lowerEx.includes('pull')) baseLift = 'deadlift';
 
-        if (baseLift && liftRms[baseLift as keyof typeof liftRms]) {
-            const rm = parseFloat(liftRms[baseLift as keyof typeof liftRms]);
-            if (!isNaN(rm)) {
-                const weight = (rm * (percent / 100)).toFixed(1);
-                return (
-                    <span>
-                        {ex} <span style={{ color: program.color, fontWeight: '700' }}>→ {weight}kg</span>
-                    </span>
-                );
-            }
+        let primaryLift = '';
+        let fallbackLift = '';
+
+        // Prioritized Mapping
+        if (lowerEx.includes('power snatch')) {
+            primaryLift = 'power snatch';
+            fallbackLift = 'snatch';
+        } else if (lowerEx.includes('snatch')) {
+            primaryLift = 'snatch';
+        } else if (lowerEx.includes('overhead squat') || lowerEx.includes('ohs')) {
+            primaryLift = 'overhead squat';
+            fallbackLift = 'snatch';
+        } else if (lowerEx.includes('power clean')) {
+            primaryLift = 'power clean';
+            fallbackLift = 'clean & jerk';
+        } else if (lowerEx.includes('clean') || lowerEx.includes('jerk')) {
+            primaryLift = 'clean & jerk';
+        } else if (lowerEx.includes('back squat')) {
+            primaryLift = 'back squat';
+        } else if (lowerEx.includes('front squat')) {
+            primaryLift = 'front squat';
+            fallbackLift = 'back squat';
+        } else if (lowerEx.includes('deadlift') || lowerEx.includes('pull')) {
+            primaryLift = 'deadlift';
+        } else if (lowerEx.includes('push press')) {
+            primaryLift = 'push press';
+            fallbackLift = 'strict press';
+        } else if (lowerEx.includes('strict press') || lowerEx.includes('press')) {
+            primaryLift = 'strict press';
+        } else if (lowerEx.includes('bench')) {
+            primaryLift = 'bench press';
+        }
+
+        const getWeight = (liftKey: string) => {
+            const val = liftRms[liftKey as keyof typeof liftRms];
+            return val ? parseFloat(val) : null;
+        };
+
+        const rm = getWeight(primaryLift) || getWeight(fallbackLift);
+
+        if (rm && !isNaN(rm)) {
+            const weight = (rm * (percent / 100)).toFixed(1);
+            return (
+                <span>
+                    {ex} <span style={{ color: program.color, fontWeight: '700' }}>→ {weight}kg</span>
+                </span>
+            );
         }
         return ex;
     };
@@ -223,32 +259,78 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                             YOUR 1RMs
                         </h3>
                         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-md)' }}>
-                            Enter your maxes to see inline weights in the workout.
+                            Enter your maxes to see inline weights in the training blocks.
                         </p>
-                        <div style={{ display: 'grid', gap: '12px' }}>
-                            {Object.entries(liftRms).map(([lift, value]) => (
-                                <div key={lift}>
-                                    <label style={{ display: 'block', fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 'bold' }}>
-                                        {lift} (kg)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={value}
-                                        onChange={(e) => updateRm(lift, e.target.value)}
-                                        placeholder="Enter kg"
-                                        style={{
-                                            width: '100%',
-                                            background: 'var(--color-surface)',
-                                            border: '1px solid var(--color-surface-hover)',
-                                            borderRadius: 'var(--radius-md)',
-                                            padding: '8px 12px',
-                                            color: 'white',
-                                            fontSize: '0.9rem',
-                                            outline: 'none'
-                                        }}
-                                    />
+
+                        <div style={{ display: 'grid', gap: '20px' }}>
+                            {/* Olympic Lifts Group */}
+                            <div>
+                                <h4 style={{ fontSize: '0.65rem', color: program.color, fontWeight: '900', letterSpacing: '0.1em', marginBottom: '8px', borderBottom: `1px solid ${program.color}20`, paddingBottom: '4px' }}>OLYMPIC</h4>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                    {[
+                                        { id: 'snatch', label: 'Snatch' },
+                                        { id: 'clean & jerk', label: 'C&J' },
+                                        { id: 'power snatch', label: 'P. Snatch' },
+                                        { id: 'power clean', label: 'P. Clean' },
+                                        { id: 'overhead squat', label: 'OHS' }
+                                    ].map(lift => (
+                                        <div key={lift.id}>
+                                            <input
+                                                type="number"
+                                                value={liftRms[lift.id as keyof typeof liftRms]}
+                                                onChange={(e) => updateRm(lift.id, e.target.value)}
+                                                placeholder={lift.label}
+                                                style={{
+                                                    width: '100%',
+                                                    background: 'var(--color-surface)',
+                                                    border: '1px solid var(--color-surface-hover)',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    padding: '6px 10px',
+                                                    color: 'white',
+                                                    fontSize: '0.8rem',
+                                                    outline: 'none'
+                                                }}
+                                            />
+                                            <div style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', marginTop: '2px', textAlign: 'center' }}>{lift.label}</div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
+
+                            {/* Strength & Squats Group */}
+                            <div>
+                                <h4 style={{ fontSize: '0.65rem', color: program.color, fontWeight: '900', letterSpacing: '0.1em', marginBottom: '8px', borderBottom: `1px solid ${program.color}20`, paddingBottom: '4px' }}>STRENGTH</h4>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                    {[
+                                        { id: 'back squat', label: 'Back Squat' },
+                                        { id: 'front squat', label: 'Front Squat' },
+                                        { id: 'deadlift', label: 'Deadlift' },
+                                        { id: 'strict press', label: 'Strict Press' },
+                                        { id: 'push press', label: 'Push Press' },
+                                        { id: 'bench press', label: 'Bench Press' }
+                                    ].map(lift => (
+                                        <div key={lift.id}>
+                                            <input
+                                                type="number"
+                                                value={liftRms[lift.id as keyof typeof liftRms]}
+                                                onChange={(e) => updateRm(lift.id, e.target.value)}
+                                                placeholder={lift.label}
+                                                style={{
+                                                    width: '100%',
+                                                    background: 'var(--color-surface)',
+                                                    border: '1px solid var(--color-surface-hover)',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    padding: '6px 10px',
+                                                    color: 'white',
+                                                    fontSize: '0.8rem',
+                                                    outline: 'none'
+                                                }}
+                                            />
+                                            <div style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', marginTop: '2px', textAlign: 'center' }}>{lift.label}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
