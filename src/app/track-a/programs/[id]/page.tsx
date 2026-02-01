@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { programsData } from '@/lib/programData';
 import PercentageCalculator from '@/components/shared/PercentageCalculator';
 import Link from 'next/link';
@@ -10,6 +10,54 @@ import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle, ChevronRig
 export default function ProgramDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const [activeWeek, setActiveWeek] = useState(1);
+    const [liftRms, setLiftRms] = useState({
+        snatch: '',
+        'clean & jerk': '',
+        'back squat': '',
+        'front squat': '',
+        deadlift: ''
+    });
+
+    useEffect(() => {
+        const savedRms = localStorage.getItem('liftRms');
+        if (savedRms) {
+            setLiftRms(JSON.parse(savedRms));
+        }
+    }, []);
+
+    const updateRm = (lift: string, value: string) => {
+        const newRms = { ...liftRms, [lift.toLowerCase()]: value };
+        setLiftRms(newRms);
+        localStorage.setItem('liftRms', JSON.stringify(newRms));
+    };
+
+    const renderExercise = (ex: string) => {
+        const percentMatch = ex.match(/@\s*(\d+)%/);
+        if (!percentMatch) return ex;
+
+        const percent = parseInt(percentMatch[1]);
+        let baseLift = '';
+
+        const lowerEx = ex.toLowerCase();
+        if (lowerEx.includes('snatch')) baseLift = 'snatch';
+        else if (lowerEx.includes('clean') || lowerEx.includes('jerk')) baseLift = 'clean & jerk';
+        else if (lowerEx.includes('back squat')) baseLift = 'back squat';
+        else if (lowerEx.includes('front squat')) baseLift = 'front squat';
+        else if (lowerEx.includes('deadlift') || lowerEx.includes('pull')) baseLift = 'deadlift';
+
+        if (baseLift && liftRms[baseLift as keyof typeof liftRms]) {
+            const rm = parseFloat(liftRms[baseLift as keyof typeof liftRms]);
+            if (!isNaN(rm)) {
+                const weight = (rm * (percent / 100)).toFixed(1);
+                return (
+                    <span>
+                        {ex} <span style={{ color: program.color, fontWeight: '700' }}>→ {weight}kg</span>
+                    </span>
+                );
+            }
+        }
+        return ex;
+    };
     const program = programsData.find(p => p.id === parseInt(params.id));
 
     const handleEnroll = () => {
@@ -117,7 +165,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                                             {day.exercises.map((ex, i) => (
                                                 <div key={i} style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
                                                     <ChevronRight size={14} style={{ marginRight: '8px', color: program.color, opacity: 0.5 }} />
-                                                    {ex}
+                                                    {renderExercise(ex)}
                                                 </div>
                                             ))}
                                         </div>
@@ -159,7 +207,49 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                     </div>
 
                     <div style={{ marginTop: 'var(--spacing-md)' }}>
-                        <PercentageCalculator color={program.color} title="Load Calculator" />
+                        <PercentageCalculator color={program.color} title="Quick Table" />
+                    </div>
+
+                    {/* 1RM Settings */}
+                    <div style={{
+                        marginTop: 'var(--spacing-lg)',
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        padding: 'var(--spacing-md)',
+                        borderRadius: 'var(--radius-lg)',
+                        border: '1px solid var(--color-surface-hover)'
+                    }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: 'var(--spacing-md)', display: 'flex', alignItems: 'center' }}>
+                            <BarChart size={18} style={{ marginRight: '8px', color: program.color }} />
+                            YOUR 1RMs
+                        </h3>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-md)' }}>
+                            Enter your maxes to see inline weights in the workout.
+                        </p>
+                        <div style={{ display: 'grid', gap: '12px' }}>
+                            {Object.entries(liftRms).map(([lift, value]) => (
+                                <div key={lift}>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 'bold' }}>
+                                        {lift} (kg)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={value}
+                                        onChange={(e) => updateRm(lift, e.target.value)}
+                                        placeholder="Enter kg"
+                                        style={{
+                                            width: '100%',
+                                            background: 'var(--color-surface)',
+                                            border: '1px solid var(--color-surface-hover)',
+                                            borderRadius: 'var(--radius-md)',
+                                            padding: '8px 12px',
+                                            color: 'white',
+                                            fontSize: '0.9rem',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
