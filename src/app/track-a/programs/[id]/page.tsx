@@ -9,6 +9,8 @@ import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle, ChevronRig
 
 export default function ProgramDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
+    const program = programsData.find(p => p.id === parseInt(params.id));
+
     const [activeWeek, setActiveWeek] = useState(1);
     const [liftRms, setLiftRms] = useState({
         snatch: '',
@@ -37,65 +39,112 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         localStorage.setItem('liftRms', JSON.stringify(newRms));
     };
 
-    const renderExercise = (ex: string) => {
-        const percentMatch = ex.match(/@\s*(\d+)%/);
-        if (!percentMatch) return ex;
+    const renderExercise = (ex: string, dayFocus: string) => {
+        if (!program) return ex;
 
-        const percent = parseInt(percentMatch[1]);
+        const percentMatch = ex.match(/(\d+)\s*%/);
         const lowerEx = ex.toLowerCase();
+        const lowerFocus = dayFocus.toLowerCase();
 
-        let primaryLift = '';
-        let fallbackLift = '';
+        // 1. Try to calculate weight if a percentage exists
+        if (percentMatch) {
+            const percent = parseInt(percentMatch[1]);
 
-        // Prioritized Mapping
-        if (lowerEx.includes('power snatch')) {
-            primaryLift = 'power snatch';
-            fallbackLift = 'snatch';
-        } else if (lowerEx.includes('snatch')) {
-            primaryLift = 'snatch';
-        } else if (lowerEx.includes('overhead squat') || lowerEx.includes('ohs')) {
-            primaryLift = 'overhead squat';
-            fallbackLift = 'snatch';
-        } else if (lowerEx.includes('power clean')) {
-            primaryLift = 'power clean';
-            fallbackLift = 'clean & jerk';
-        } else if (lowerEx.includes('clean') || lowerEx.includes('jerk')) {
-            primaryLift = 'clean & jerk';
-        } else if (lowerEx.includes('back squat')) {
-            primaryLift = 'back squat';
-        } else if (lowerEx.includes('front squat')) {
-            primaryLift = 'front squat';
-            fallbackLift = 'back squat';
-        } else if (lowerEx.includes('deadlift') || lowerEx.includes('pull')) {
-            primaryLift = 'deadlift';
-        } else if (lowerEx.includes('push press')) {
-            primaryLift = 'push press';
-            fallbackLift = 'strict press';
-        } else if (lowerEx.includes('strict press') || lowerEx.includes('press')) {
-            primaryLift = 'strict press';
-        } else if (lowerEx.includes('bench')) {
-            primaryLift = 'bench press';
+            let primaryLift = '';
+            let fallbackLift = '';
+
+            // Prioritized Mapping
+            if (lowerEx.includes('power snatch')) {
+                primaryLift = 'power snatch';
+                fallbackLift = 'snatch';
+            } else if (lowerEx.includes('snatch')) {
+                primaryLift = 'snatch';
+            } else if (lowerEx.includes('overhead squat') || lowerEx.includes('ohs')) {
+                primaryLift = 'overhead squat';
+                fallbackLift = 'snatch';
+            } else if (lowerEx.includes('power clean')) {
+                primaryLift = 'power clean';
+                fallbackLift = 'clean & jerk';
+            } else if (lowerEx.includes('clean') || lowerEx.includes('jerk')) {
+                primaryLift = 'clean & jerk';
+            } else if (lowerEx.includes('back squat')) {
+                primaryLift = 'back squat';
+            } else if (lowerEx.includes('front squat')) {
+                primaryLift = 'front squat';
+                fallbackLift = 'back squat';
+            } else if (lowerEx.includes('deadlift') || lowerEx.includes('pull')) {
+                primaryLift = 'deadlift';
+            } else if (lowerEx.includes('push press')) {
+                primaryLift = 'push press';
+                fallbackLift = 'strict press';
+            } else if (lowerEx.includes('strict press') || lowerEx.includes('press')) {
+                primaryLift = 'strict press';
+            } else if (lowerEx.includes('bench')) {
+                primaryLift = 'bench press';
+            }
+
+            const getWeight = (liftKey: string) => {
+                const val = liftRms[liftKey as keyof typeof liftRms];
+                return val ? parseFloat(val) : null;
+            };
+
+            const rmValue = getWeight(primaryLift) || getWeight(fallbackLift);
+
+            if (rmValue && !isNaN(rmValue)) {
+                const weight = (rmValue * (percent / 100)).toFixed(1);
+                return (
+                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                        <span>{ex}</span>
+                        <span style={{
+                            color: program.color,
+                            fontWeight: '800',
+                            fontSize: '0.85rem',
+                            background: `${program.color}15`,
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            border: `1px solid ${program.color}30`
+                        }}>→ {weight}kg</span>
+                    </div>
+                );
+            }
         }
 
-        const getWeight = (liftKey: string) => {
-            const val = liftRms[liftKey as keyof typeof liftRms];
-            return val ? parseFloat(val) : null;
-        };
+        // 2. Fallback to RPE if no percentage weight was calculated
+        const isRecovery = lowerFocus.includes('recovery') || lowerFocus.includes('mobility') || lowerFocus.includes('rest');
+        const isMaxEffort = lowerFocus.includes('max') || lowerFocus.includes('intensity') || lowerFocus.includes('heavy single') || lowerFocus.includes('opener') || lowerFocus.includes('1rm') || lowerFocus.includes('test');
+        const isSpeed = lowerFocus.includes('speed') || lowerFocus.includes('power') || lowerFocus.includes('priming') || lowerFocus.includes('dynamic') || lowerFocus.includes('activation');
 
-        const rm = getWeight(primaryLift) || getWeight(fallbackLift);
+        if (!isRecovery && !ex.toLowerCase().includes('rest') && !ex.toLowerCase().includes('mobility')) {
+            let rpeLabel = 'RPE 7-8'; // Default Technical/Volume
+            let rpeColor = 'var(--color-text-secondary)';
 
-        if (rm && !isNaN(rm)) {
-            const weight = (rm * (percent / 100)).toFixed(1);
+            if (isMaxEffort) {
+                rpeLabel = 'RPE 9-9.5';
+                rpeColor = 'var(--color-error)';
+            } else if (isSpeed) {
+                rpeLabel = 'RPE 5-6 Speed';
+                rpeColor = 'var(--color-info)';
+            }
+
             return (
-                <span>
-                    {ex} <span style={{ color: program.color, fontWeight: '700' }}>→ {weight}kg</span>
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <span>{ex}</span>
+                    <span style={{
+                        color: rpeColor,
+                        opacity: 0.8,
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        padding: '2px 6px',
+                        border: '1px solid currentColor',
+                        borderRadius: '4px'
+                    }}>{rpeLabel}</span>
+                </div>
             );
         }
+
         return ex;
     };
-    const program = programsData.find(p => p.id === parseInt(params.id));
-
     const handleEnroll = () => {
         if (program) {
             localStorage.setItem('activeProgram', JSON.stringify(program));
@@ -199,9 +248,9 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                                         </div>
                                         <div style={{ paddingLeft: '12px', borderLeft: `2px solid ${program.color}40` }}>
                                             {day.exercises.map((ex, i) => (
-                                                <div key={i} style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-                                                    <ChevronRight size={14} style={{ marginRight: '8px', color: program.color, opacity: 0.5 }} />
-                                                    {renderExercise(ex)}
+                                                <div key={i} style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '12px', display: 'flex', alignItems: 'flex-start' }}>
+                                                    <ChevronRight size={14} style={{ marginRight: '8px', color: program.color, opacity: 0.5, marginTop: '4px' }} />
+                                                    {renderExercise(ex, day.focus)}
                                                 </div>
                                             ))}
                                         </div>
