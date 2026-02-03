@@ -1,0 +1,108 @@
+'use client';
+
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import { User, LogOut, Layout, Home } from 'lucide-react';
+import { programsData } from '@/lib/programData';
+
+export default function Header() {
+    const { user, logout } = useAuth();
+
+    const activeProgramId = user?.profile?.activeProgramId;
+    const activeProgram = activeProgramId
+        ? programsData.find(p => p.id === activeProgramId)
+        : null;
+
+    return (
+        <nav style={{
+            background: 'var(--color-surface)',
+            borderBottom: '1px solid var(--color-surface-hover)',
+            padding: 'var(--spacing-md) var(--spacing-lg)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            position: 'sticky',
+            top: 0,
+            zIndex: 100
+        }}>
+            <Link href="/" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                textDecoration: 'none',
+                color: 'white'
+            }}>
+                <div style={{
+                    background: 'var(--color-brand-orange)',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: '900',
+                    fontSize: '0.8rem'
+                }}>1%</div>
+                <span style={{ fontWeight: '800', letterSpacing: '-0.02em', fontSize: '1.1rem' }}>HUB</span>
+            </Link>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+                {activeProgram && (
+                    <Link href={`/track-a/programs/${activeProgram.id}`} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.8rem',
+                        fontWeight: '700',
+                        color: activeProgram.color,
+                        background: `${activeProgram.color}15`,
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        textDecoration: 'none',
+                        border: `1px solid ${activeProgram.color}30`
+                    }}>
+                        <Layout size={14} />
+                        PROGRAM: {activeProgram.title.split(' ')[0].toUpperCase()}
+                    </Link>
+                )}
+
+                {user ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                        <Link href="/profile" style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            color: 'var(--color-text-secondary)',
+                            textDecoration: 'none',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                        }}>
+                            <User size={18} />
+                            {user.profile?.displayName || user.username}
+                        </Link>
+                        <button
+                            onClick={logout}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--color-error)',
+                                cursor: 'pointer',
+                                padding: '6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                opacity: 0.7
+                            }}
+                            title="Logout"
+                        >
+                            <LogOut size={18} />
+                        </button>
+                    </div>
+                ) : (
+                    <Link href="/login" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                        Join The 1%
+                    </Link>
+                )}
+            </div>
+        </nav>
+    );
+}

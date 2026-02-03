@@ -5,10 +5,12 @@ import { programsData } from '@/lib/programData';
 import PercentageCalculator from '@/components/shared/PercentageCalculator';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle, ChevronRight, Check } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ProgramDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
+    const { user, updateProfile, markSessionComplete } = useAuth();
     const program = programsData.find(p => p.id === parseInt(params.id));
 
     const [activeWeek, setActiveWeek] = useState(1);
@@ -27,16 +29,26 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
     });
 
     useEffect(() => {
-        const savedRms = localStorage.getItem('liftRms');
-        if (savedRms) {
-            setLiftRms(JSON.parse(savedRms));
+        if (user?.profile?.liftRms) {
+            setLiftRms(prev => ({ ...prev, ...user.profile!.liftRms }));
         }
-    }, []);
+    }, [user?.profile?.liftRms]);
 
     const updateRm = (lift: string, value: string) => {
-        const newRms = { ...liftRms, [lift.toLowerCase()]: value };
+        const liftKey = lift.toLowerCase();
+        const newRms = { ...liftRms, [liftKey]: value };
         setLiftRms(newRms);
-        localStorage.setItem('liftRms', JSON.stringify(newRms));
+        updateProfile({ liftRms: newRms });
+    };
+
+    const isSessionComplete = (week: number, day: number) => {
+        if (!user?.profile || !program) return false;
+        return user.profile.completedSessions.includes(`${program.id}-${week}-${day}`);
+    };
+
+    const handleCompleteSession = (week: number, dayNum: number) => {
+        if (!program) return;
+        markSessionComplete(program.id, activeWeek, dayNum);
     };
 
     const renderExercise = (ex: string, dayFocus: string) => {
@@ -46,14 +58,11 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         const lowerEx = ex.toLowerCase();
         const lowerFocus = dayFocus.toLowerCase();
 
-        // 1. Try to calculate weight if a percentage exists
         if (percentMatch) {
             const percent = parseInt(percentMatch[1]);
-
             let primaryLift = '';
             let fallbackLift = '';
 
-            // Prioritized Mapping
             if (lowerEx.includes('power snatch')) {
                 primaryLift = 'power snatch';
                 fallbackLift = 'snatch';
@@ -109,13 +118,12 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
             }
         }
 
-        // 2. Fallback to RPE if no percentage weight was calculated
         const isRecovery = lowerFocus.includes('recovery') || lowerFocus.includes('mobility') || lowerFocus.includes('rest');
         const isMaxEffort = lowerFocus.includes('max') || lowerFocus.includes('intensity') || lowerFocus.includes('heavy single') || lowerFocus.includes('opener') || lowerFocus.includes('1rm') || lowerFocus.includes('test');
         const isSpeed = lowerFocus.includes('speed') || lowerFocus.includes('power') || lowerFocus.includes('priming') || lowerFocus.includes('dynamic') || lowerFocus.includes('activation');
 
         if (!isRecovery && !ex.toLowerCase().includes('rest') && !ex.toLowerCase().includes('mobility')) {
-            let rpeLabel = 'RPE 7-8'; // Default Technical/Volume
+            let rpeLabel = 'RPE 7-8';
             let rpeColor = 'var(--color-text-secondary)';
 
             if (isMaxEffort) {
@@ -145,10 +153,11 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
 
         return ex;
     };
+
     const handleEnroll = () => {
         if (program) {
-            localStorage.setItem('activeProgram', JSON.stringify(program));
-            router.push('/track-a');
+            updateProfile({ activeProgramId: program.id });
+            router.push('/profile');
         }
     };
 
@@ -246,7 +255,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                                             <span style={{ fontWeight: '900', color: 'white', letterSpacing: '0.05em' }}>{day.day.toUpperCase()}</span>
                                             <span style={{ fontSize: '0.75rem', fontWeight: '800', color: program.color, background: `${program.color}15`, padding: '4px 8px', borderRadius: '4px' }}>{day.focus.toUpperCase()}</span>
                                         </div>
-                                        <div style={{ paddingLeft: '12px', borderLeft: `2px solid ${program.color}40` }}>
+                                        <div style={{ paddingLeft: '12px', borderLeft: `2px solid ${program.color}40`, marginBottom: '12px' }}>
                                             {day.exercises.map((ex, i) => (
                                                 <div key={i} style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '12px', display: 'flex', alignItems: 'flex-start' }}>
                                                     <ChevronRight size={14} style={{ marginRight: '8px', color: program.color, opacity: 0.5, marginTop: '4px' }} />
@@ -254,6 +263,32 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                                                 </div>
                                             ))}
                                         </div>
+
+                                        <button
+                                            onClick={() => handleCompleteSession(activeWeek, idx + 1)}
+                                            style={{
+                                                marginTop: 'auto',
+                                                background: isSessionComplete(activeWeek, idx + 1) ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                                                border: `1px solid ${isSessionComplete(activeWeek, idx + 1) ? 'rgba(76, 175, 80, 0.3)' : 'var(--color-surface-hover)'}`,
+                                                color: isSessionComplete(activeWeek, idx + 1) ? '#4caf50' : 'var(--color-text-secondary)',
+                                                padding: '8px',
+                                                borderRadius: 'var(--radius-sm)',
+                                                fontSize: '0.75rem',
+                                                fontWeight: '800',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            {isSessionComplete(activeWeek, idx + 1) ? (
+                                                <><Check size={14} /> SESSION COMPLETE</>
+                                            ) : (
+                                                'MARK AS COMPLETE'
+                                            )}
+                                        </button>
                                     </div>
                                 ))}
                             </div>
