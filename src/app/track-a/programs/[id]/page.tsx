@@ -5,12 +5,12 @@ import { programsData } from '@/lib/programData';
 import PercentageCalculator from '@/components/shared/PercentageCalculator';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle, ChevronRight, Check } from 'lucide-react';
+import { ArrowLeft, Clock, BarChart, Calendar, BookOpen, CheckCircle, ChevronRight, Check, PlusCircle, XCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function ProgramDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const { user, updateProfile, markSessionComplete } = useAuth();
+    const { user, updateProfile, markSessionComplete, toggleEnrollment } = useAuth();
     const program = programsData.find(p => p.id === parseInt(params.id));
 
     const [activeWeek, setActiveWeek] = useState(1);
@@ -174,13 +174,12 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         return ex;
     };
 
+    const isEnrolled = user?.profile?.activeEnrollments?.some(e => e.track === 'A' && e.id === program?.id) ||
+        (user?.profile?.activeProgramId === program?.id && user?.profile?.activeProgramTrack === 'A');
+
     const handleEnroll = () => {
         if (program) {
-            updateProfile({
-                activeProgramId: program.id,
-                activeProgramTrack: 'A'
-            });
-            router.push('/profile');
+            toggleEnrollment('A', program.id);
         }
     };
 
@@ -221,12 +220,26 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                             <div style={{ display: 'flex', alignItems: 'center' }}><BarChart size={16} style={{ marginRight: '6px' }} /> {program.level}</div>
                         </div>
                     </div>
-                    {user?.profile?.activeProgramId === program.id && user?.profile?.activeProgramTrack === 'A' ? (
-                        <div style={{ background: `${program.color}20`, color: program.color, padding: '10px 20px', borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.9rem', border: `1px solid ${program.color}40` }}>
-                            ACTIVE ENROLLMENT
-                        </div>
+                    {isEnrolled ? (
+                        <button onClick={handleEnroll} style={{
+                            background: 'transparent',
+                            color: program.color,
+                            padding: '10px 20px',
+                            borderRadius: 'var(--radius-md)',
+                            fontWeight: '800',
+                            fontSize: '0.9rem',
+                            border: `1px solid ${program.color}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            cursor: 'pointer'
+                        }}>
+                            <CheckCircle size={18} />
+                            ENROLLED
+                        </button>
                     ) : (
-                        <button onClick={handleEnroll} className="btn btn-primary" style={{ background: program.color, cursor: 'pointer' }}>
+                        <button onClick={handleEnroll} className="btn btn-primary" style={{ background: program.color, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <PlusCircle size={18} />
                             Enroll Now
                         </button>
                     )}

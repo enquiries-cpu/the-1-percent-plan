@@ -48,12 +48,40 @@ export default function Header() {
             </Link>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-                {!isLoading && activeProgram && (
+                {!isLoading && user?.profile?.activeEnrollments && user.profile.activeEnrollments.length > 0 && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        {user.profile.activeEnrollments.map((enrollment, idx) => {
+                            const prog = getProgramByTrackAndId(enrollment.track, enrollment.id);
+                            if (!prog) return null;
+                            return (
+                                <Link key={`${enrollment.track}-${enrollment.id}`} href={`/${enrollment.track === 'A' ? 'track-a' : enrollment.track === 'B' ? 'track-b' : 'track-c'}/programs/${enrollment.id}`} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '700',
+                                    color: prog.color,
+                                    background: `${prog.color}15`,
+                                    padding: '6px 12px',
+                                    borderRadius: '20px',
+                                    textDecoration: 'none',
+                                    border: `1px solid ${prog.color}30`
+                                }}>
+                                    <Layout size={12} />
+                                    {prog.title.split(' ')[0].toUpperCase()}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Fallback for legacy data if migration didn't run yet or failed silently (though it should have run) */}
+                {!isLoading && (!user?.profile?.activeEnrollments || user.profile.activeEnrollments.length === 0) && activeProgram && (
                     <Link href={`/${activeProgramTrack === 'A' ? 'track-a' : activeProgramTrack === 'B' ? 'track-b' : 'track-c'}/programs/${activeProgram.id}`} style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
-                        fontSize: '0.8rem',
+                        fontSize: '0.75rem',
                         fontWeight: '700',
                         color: activeProgram.color,
                         background: `${activeProgram.color}15`,
@@ -62,8 +90,8 @@ export default function Header() {
                         textDecoration: 'none',
                         border: `1px solid ${activeProgram.color}30`
                     }}>
-                        <Layout size={14} />
-                        PROGRAM: {activeProgram.title.split(' ')[0].toUpperCase()}
+                        <Layout size={12} />
+                        {activeProgram.title.split(' ')[0].toUpperCase()}
                     </Link>
                 )}
 

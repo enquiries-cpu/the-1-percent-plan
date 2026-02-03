@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { metabolicData } from '@/lib/metabolicData';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, Zap, Activity, Calendar, Award, ChevronRight, BarChart, Check, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Zap, Activity, Calendar, Award, ChevronRight, BarChart, Check, CheckCircle, PlusCircle, XCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function MetabolicProgramDetail({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const { user, updateProfile, markSessionComplete } = useAuth();
+    const { user, updateProfile, markSessionComplete, toggleEnrollment } = useAuth();
     const [activeWeek, setActiveWeek] = useState(1);
     const program = metabolicData.find(p => p.id === parseInt(params.id));
 
@@ -41,13 +41,12 @@ export default function MetabolicProgramDetail({ params }: { params: { id: strin
         markSessionComplete('C', program.id, week, dayNum);
     };
 
+    const isEnrolled = user?.profile?.activeEnrollments?.some(e => e.track === 'C' && e.id === program?.id) ||
+        (user?.profile?.activeProgramId === program?.id && user?.profile?.activeProgramTrack === 'C');
+
     const handleEnroll = () => {
         if (program) {
-            updateProfile({
-                activeProgramId: program.id,
-                activeProgramTrack: 'C'
-            });
-            router.push('/profile');
+            toggleEnrollment('C', program.id);
         }
     };
 
@@ -88,12 +87,26 @@ export default function MetabolicProgramDetail({ params }: { params: { id: strin
                             <div style={{ display: 'flex', alignItems: 'center' }}><Zap size={16} style={{ marginRight: '6px' }} /> {program.intensity.split('(')[0]}</div>
                         </div>
                     </div>
-                    {user?.profile?.activeProgramId === program.id && user?.profile?.activeProgramTrack === 'C' ? (
-                        <div style={{ background: `${program.color}20`, color: program.color, padding: '10px 20px', borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.9rem', border: `1px solid ${program.color}40` }}>
-                            ACTIVE ENROLLMENT
-                        </div>
+                    {isEnrolled ? (
+                        <button onClick={handleEnroll} style={{
+                            background: 'transparent',
+                            color: program.color,
+                            padding: '10px 20px',
+                            borderRadius: 'var(--radius-md)',
+                            fontWeight: '800',
+                            fontSize: '0.9rem',
+                            border: `1px solid ${program.color}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            cursor: 'pointer'
+                        }}>
+                            <CheckCircle size={18} />
+                            ENROLLED
+                        </button>
                     ) : (
-                        <button onClick={handleEnroll} className="btn btn-primary" style={{ background: program.color, cursor: 'pointer' }}>
+                        <button onClick={handleEnroll} className="btn btn-primary" style={{ background: program.color, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <PlusCircle size={18} />
                             Start Engine
                         </button>
                     )}

@@ -18,11 +18,13 @@ export default function ProfilePage() {
     }
 
     const { profile } = user;
-    const activeProgramId = profile.activeProgramId;
-    const activeProgramTrack = profile.activeProgramTrack;
-    const activeProgram = (activeProgramTrack && activeProgramId)
-        ? getProgramByTrackAndId(activeProgramTrack, activeProgramId)
-        : null;
+
+    // Fallback/Migration: Use activeEnrollments, or construct from legacy if missing
+    const enrollments = (profile.activeEnrollments && profile.activeEnrollments.length > 0)
+        ? profile.activeEnrollments
+        : (profile.activeProgramId && profile.activeProgramTrack)
+            ? [{ track: profile.activeProgramTrack, id: profile.activeProgramId, enrollmentDate: new Date().toISOString() }]
+            : [];
 
     const handleRmChange = (liftId: string, value: string) => {
         const newRms = { ...profile.liftRms, [liftId.toLowerCase()]: value };
@@ -43,27 +45,6 @@ export default function ProfilePage() {
         { id: 'bench press', label: 'Bench Press' }
     ];
 
-    // Calculate progress for active program
-    const completedInActive = (activeProgram && activeProgramTrack)
-        ? profile.completedSessions.filter(s => s.startsWith(`${activeProgramTrack}-${activeProgram.id}-`)).length
-        : 0;
-
-    let totalSessions = 0;
-    if (activeProgram && activeProgram.weeks) {
-        totalSessions = activeProgram.weeks.reduce((acc, w) => acc + (w.days?.length || 0), 0);
-    }
-
-    const progressPercent = totalSessions > 0 ? Math.round((completedInActive / totalSessions) * 100) : 0;
-
-    const getTrackRoute = (track: string) => {
-        switch (track) {
-            case 'A': return '/track-a';
-            case 'B': return '/track-b';
-            case 'C': return '/track-c';
-            default: return '/';
-        }
-    };
-
     return (
         <main className="container animate-fade-in" style={{ padding: 'var(--spacing-xl) var(--spacing-md)' }}>
             {/* Profile Header */}
@@ -79,10 +60,12 @@ export default function ProfilePage() {
                         </div>
                     </div>
                 </div>
-                {activeProgram && (
+                {enrollments.length > 0 && (
                     <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: '0.75rem', fontWeight: '800', opacity: 0.6, marginBottom: '4px' }}>CURRENT FOCUS</div>
-                        <div style={{ fontSize: '1.25rem', fontWeight: '800', color: activeProgram.color }}>{activeProgram.title.toUpperCase()}</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: '800', color: getProgramByTrackAndId(enrollments[0].track, enrollments[0].id)?.color }}>
+                            {getProgramByTrackAndId(enrollments[0].track, enrollments[0].id)?.title.toUpperCase()}
+                        </div>
                     </div>
                 )}
             </header>
@@ -173,66 +156,81 @@ export default function ProfilePage() {
                 {/* Right Column: Active Program & Stats */}
                 <div style={{ display: 'grid', gap: 'var(--spacing-xl)', alignContent: 'start' }}>
 
-                    {/* Active Program Card */}
-                    {activeProgram ? (
-                        <div style={{
-                            background: `linear-gradient(135deg, ${activeProgram.color}20 0%, var(--color-surface) 100%)`,
-                            padding: 'var(--spacing-lg)',
-                            borderRadius: 'var(--radius-lg)',
-                            border: `1px solid ${activeProgram.color}30`,
-                            position: 'relative',
-                            overflow: 'hidden'
-                        }}>
-                            <div style={{ position: 'relative', zIndex: 1 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-md)' }}>
-                                    <div>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: '900', color: activeProgram.color, letterSpacing: '0.1em' }}>ACTIVE ENROLLMENT</span>
-                                        <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginTop: '4px' }}>{activeProgram.title}</h3>
-                                    </div>
-                                    <Activity color={activeProgram.color} size={32} style={{ opacity: 0.5 }} />
-                                </div>
+                    {/* Active Program Cards */}
+                    <div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: 'var(--spacing-md)' }}>ACTIVE PROGRAMS</h3>
 
-                                <div style={{ marginBottom: 'var(--spacing-lg)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', marginBottom: '6px' }}>
-                                        <span>Program Progress</span>
-                                        <span>{progressPercent}%</span>
-                                    </div>
-                                    <div style={{ width: '100%', height: '8px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <div style={{ width: `${progressPercent}%`, height: '100%', background: activeProgram.color, transition: 'width 0.5s ease' }}></div>
-                                    </div>
-                                </div>
+                        {enrollments.length > 0 ? (
+                            <div style={{ display: 'grid', gap: 'var(--spacing-lg)' }}>
+                                {enrollments.map((enrollment) => {
+                                    const program = getProgramByTrackAndId(enrollment.track, enrollment.id);
+                                    if (!program) return null;
 
-                                <Link href={`${getTrackRoute(activeProgramTrack!)}/programs/${activeProgram.id}`} className="btn" style={{
-                                    width: '100%',
-                                    background: activeProgram.color,
-                                    color: 'black',
-                                    fontWeight: '800',
-                                    padding: '12px',
-                                    textAlign: 'center',
-                                    display: 'block',
-                                    textDecoration: 'none',
-                                    borderRadius: 'var(--radius-md)'
-                                }}>
-                                    CONTINUE TRAINING
-                                </Link>
+                                    const completedCount = profile.completedSessions.filter(s => s.startsWith(`${enrollment.track}-${program.id}-`)).length;
+                                    let totalCount = 0;
+                                    program.weeks?.forEach(w => totalCount += w.days.length);
+                                    const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+                                    return (
+                                        <div key={`${enrollment.track}-${program.id}`} style={{
+                                            background: `linear-gradient(135deg, ${program.color}20 0%, var(--color-surface) 100%)`,
+                                            padding: 'var(--spacing-lg)',
+                                            borderRadius: 'var(--radius-lg)',
+                                            border: `1px solid ${program.color}30`,
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <div style={{ position: 'relative', zIndex: 1 }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-md)' }}>
+                                                    <div>
+                                                        <span style={{ fontSize: '0.75rem', fontWeight: '900', color: program.color, letterSpacing: '0.1em' }}>
+                                                            {enrollment.track === 'A' ? 'OLYMPIC' : enrollment.track === 'B' ? 'GYMNASTICS' : 'ENGINE'}
+                                                        </span>
+                                                        <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginTop: '4px' }}>{program.title}</h3>
+                                                    </div>
+                                                    <Activity color={program.color} size={32} style={{ opacity: 0.5 }} />
+                                                </div>
+
+                                                <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700', marginBottom: '6px' }}>
+                                                        <span>Progress</span>
+                                                        <span>{percent}%</span>
+                                                    </div>
+                                                    <div style={{ width: '100%', height: '8px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                                                        <div style={{
+                                                            width: `${percent}%`,
+                                                            height: '100%',
+                                                            background: program.color,
+                                                            transition: 'width 1s ease-out'
+                                                        }} />
+                                                    </div>
+                                                </div>
+
+                                                <Link href={`/${enrollment.track === 'A' ? 'track-a' : enrollment.track === 'B' ? 'track-b' : 'track-c'}/programs/${program.id}`} className="btn btn-primary" style={{ width: '100%', textAlign: 'center', background: program.color, border: 'none' }}>
+                                                    Continue Training
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        </div>
-                    ) : (
-                        <div style={{
-                            background: 'var(--color-surface)',
-                            padding: 'var(--spacing-lg)',
-                            borderRadius: 'var(--radius-lg)',
-                            border: '1px solid var(--color-surface-hover)',
-                            textAlign: 'center'
-                        }}>
-                            <Calendar size={48} style={{ opacity: 0.2, marginBottom: 'var(--spacing-md)' }} />
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: 'var(--spacing-sm)' }}>No Active Program</h3>
-                            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: 'var(--spacing-lg)' }}>
-                                Enroll in a specialized track to start tracking your elite progression.
-                            </p>
-                            <Link href="/track-a/programs" className="btn btn-primary" style={{ display: 'block' }}>Browse Programs</Link>
-                        </div>
-                    )}
+                        ) : (
+                            <div style={{
+                                padding: 'var(--spacing-lg)',
+                                border: '1px dashed var(--color-surface-hover)',
+                                borderRadius: 'var(--radius-md)',
+                                textAlign: 'center',
+                                color: 'var(--color-text-secondary)'
+                            }}>
+                                <Calendar size={48} style={{ opacity: 0.2, marginBottom: 'var(--spacing-md)', margin: '0 auto', display: 'block' }} />
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: 'var(--spacing-sm)' }}>No Active Program</h3>
+                                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: 'var(--spacing-lg)' }}>
+                                    Enroll in a specialized track to start tracking your elite progression.
+                                </p>
+                                <Link href="/track-a/programs" className="btn btn-primary" style={{ display: 'block' }}>Browse Programs</Link>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Quick Stats */}
                     <section style={{ background: 'var(--color-surface)', padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-surface-hover)' }}>
