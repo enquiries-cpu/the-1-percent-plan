@@ -3,14 +3,15 @@
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { User, LogOut, Layout, Home } from 'lucide-react';
-import { programsData } from '@/lib/programData';
+import { getProgramByTrackAndId } from '@/lib/allPrograms';
 
 export default function Header() {
     const { user, logout } = useAuth();
 
     const activeProgramId = user?.profile?.activeProgramId;
-    const activeProgram = activeProgramId
-        ? programsData.find(p => p.id === activeProgramId)
+    const activeProgramTrack = user?.profile?.activeProgramTrack;
+    const activeProgram = (activeProgramTrack && activeProgramId)
+        ? getProgramByTrackAndId(activeProgramTrack, activeProgramId)
         : null;
 
     return (

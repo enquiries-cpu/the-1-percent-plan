@@ -1,20 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { metabolicData } from '@/lib/metabolicData';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, Zap, Activity, Calendar, Award, ChevronRight, BarChart } from 'lucide-react';
+import { ArrowLeft, Clock, Zap, Activity, Calendar, Award, ChevronRight, BarChart, Check, CheckCircle } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function MetabolicProgramDetail({ params }: { params: { id: string } }) {
     const router = useRouter();
+    const { user, updateProfile, markSessionComplete } = useAuth();
     const [activeWeek, setActiveWeek] = useState(1);
     const program = metabolicData.find(p => p.id === parseInt(params.id));
 
+    // Scroll to next session logic
+    useEffect(() => {
+        if (!program) return;
+
+        const firstIncompleteIdx = program.weeks
+            ?.find(w => w.week === activeWeek)
+            ?.days.findIndex((_, idx) => !isSessionComplete(activeWeek, idx + 1));
+
+        if (firstIncompleteIdx !== undefined && firstIncompleteIdx !== -1) {
+            setTimeout(() => {
+                const element = document.getElementById(`day-${firstIncompleteIdx}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+        }
+    }, [activeWeek, user?.profile?.completedSessions]);
+
+    const isSessionComplete = (week: number, day: number) => {
+        if (!user?.profile || !program) return false;
+        return user.profile.completedSessions.includes(`C-${program.id}-${week}-${day}`);
+    };
+
+    const handleCompleteSession = (week: number, dayNum: number) => {
+        if (!program) return;
+        markSessionComplete('C', program.id, week, dayNum);
+    };
+
     const handleEnroll = () => {
         if (program) {
-            localStorage.setItem('activeMetabolicProgram', JSON.stringify(program));
-            router.push('/track-c');
+            updateProfile({
+                activeProgramId: program.id,
+                activeProgramTrack: 'C'
+            });
+            router.push('/profile');
         }
     };
 
@@ -55,9 +88,15 @@ export default function MetabolicProgramDetail({ params }: { params: { id: strin
                             <div style={{ display: 'flex', alignItems: 'center' }}><Zap size={16} style={{ marginRight: '6px' }} /> {program.intensity.split('(')[0]}</div>
                         </div>
                     </div>
-                    <button onClick={handleEnroll} className="btn btn-primary" style={{ background: program.color, cursor: 'pointer' }}>
-                        Start Engine
-                    </button>
+                    {user?.profile?.activeProgramId === program.id && user?.profile?.activeProgramTrack === 'C' ? (
+                        <div style={{ background: `${program.color}20`, color: program.color, padding: '10px 20px', borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.9rem', border: `1px solid ${program.color}40` }}>
+                            ACTIVE ENROLLMENT
+                        </div>
+                    ) : (
+                        <button onClick={handleEnroll} className="btn btn-primary" style={{ background: program.color, cursor: 'pointer' }}>
+                            Start Engine
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -99,29 +138,62 @@ export default function MetabolicProgramDetail({ params }: { params: { id: strin
                                 Week {activeWeek}: {currentWeekData.title}
                             </h2>
                             <div style={{ display: 'grid', gap: 'var(--spacing-md)' }}>
-                                {currentWeekData.days.map((day, idx) => (
-                                    <div key={idx} style={{
-                                        background: 'var(--color-surface)',
-                                        padding: 'var(--spacing-md)',
-                                        borderRadius: 'var(--radius-md)',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        border: '1px solid var(--color-surface-hover)'
-                                    }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center' }}>
-                                            <span style={{ fontWeight: '900', color: 'white', letterSpacing: '0.05em' }}>{day.day.toUpperCase()}</span>
-                                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: program.color, background: `${program.color}15`, padding: '4px 8px', borderRadius: '4px' }}>{day.focus.toUpperCase()}</span>
-                                        </div>
-                                        <div style={{ paddingLeft: '12px', borderLeft: `2px solid ${program.color}40` }}>
-                                            {day.exercises.map((ex, i) => (
-                                                <div key={i} style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-                                                    <ChevronRight size={14} style={{ marginRight: '8px', color: program.color, opacity: 0.5 }} />
-                                                    {ex}
+                                {currentWeekData.days.map((day, idx) => {
+                                    const complete = isSessionComplete(activeWeek, idx + 1);
+                                    return (
+                                        <div key={idx} id={`day-${idx}`} style={{
+                                            background: 'var(--color-surface)',
+                                            padding: 'var(--spacing-md)',
+                                            borderRadius: 'var(--radius-md)',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            border: complete ? '1px solid rgba(76, 175, 80, 0.3)' : '1px solid var(--color-surface-hover)',
+                                            opacity: complete ? 0.8 : 1
+                                        }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <span style={{ fontWeight: '900', color: 'white', letterSpacing: '0.05em' }}>{day.day.toUpperCase()}</span>
+                                                    {complete && <CheckCircle size={14} color="#4caf50" />}
                                                 </div>
-                                            ))}
+                                                <span style={{ fontSize: '0.75rem', fontWeight: '800', color: program.color, background: `${program.color}15`, padding: '4px 8px', borderRadius: '4px' }}>{day.focus.toUpperCase()}</span>
+                                            </div>
+                                            <div style={{ paddingLeft: '12px', borderLeft: `2px solid ${program.color}40`, marginBottom: '16px' }}>
+                                                {day.exercises.map((ex, i) => (
+                                                    <div key={i} style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+                                                        <ChevronRight size={14} style={{ marginRight: '8px', color: program.color, opacity: 0.5 }} />
+                                                        {ex}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <button
+                                                onClick={() => handleCompleteSession(activeWeek, idx + 1)}
+                                                style={{
+                                                    marginTop: 'auto',
+                                                    background: complete ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                                                    border: `1px solid ${complete ? 'rgba(76, 175, 80, 0.3)' : 'var(--color-surface-hover)'}`,
+                                                    color: complete ? '#4caf50' : 'var(--color-text-secondary)',
+                                                    padding: '8px',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: '800',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: '8px',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {complete ? (
+                                                    <><Check size={14} /> SESSION COMPLETE</>
+                                                ) : (
+                                                    'MARK AS COMPLETE'
+                                                )}
+                                            </button>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </section>
                     )}

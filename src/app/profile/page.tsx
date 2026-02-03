@@ -1,7 +1,5 @@
-'use client';
-
 import { useAuth } from '@/context/AuthContext';
-import { programsData } from '@/lib/programData';
+import { allPrograms, getProgramByTrackAndId } from '@/lib/allPrograms';
 import { User, Activity, CheckCircle, BarChart, Calendar, ChevronRight, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,8 +17,9 @@ export default function ProfilePage() {
 
     const { profile } = user;
     const activeProgramId = profile.activeProgramId;
-    const activeProgram = activeProgramId
-        ? programsData.find(p => p.id === activeProgramId)
+    const activeProgramTrack = profile.activeProgramTrack;
+    const activeProgram = (activeProgramTrack && activeProgramId)
+        ? getProgramByTrackAndId(activeProgramTrack, activeProgramId)
         : null;
 
     const handleRmChange = (liftId: string, value: string) => {
@@ -43,8 +42,8 @@ export default function ProfilePage() {
     ];
 
     // Calculate progress for active program
-    const completedInActive = activeProgram
-        ? profile.completedSessions.filter(s => s.startsWith(`${activeProgram.id}-`)).length
+    const completedInActive = (activeProgram && activeProgramTrack)
+        ? profile.completedSessions.filter(s => s.startsWith(`${activeProgramTrack}-${activeProgram.id}-`)).length
         : 0;
 
     let totalSessions = 0;
@@ -53,6 +52,15 @@ export default function ProfilePage() {
     }
 
     const progressPercent = totalSessions > 0 ? Math.round((completedInActive / totalSessions) * 100) : 0;
+
+    const getTrackRoute = (track: string) => {
+        switch (track) {
+            case 'A': return '/track-a';
+            case 'B': return '/track-b';
+            case 'C': return '/track-c';
+            default: return '/';
+        }
+    };
 
     return (
         <main className="container animate-fade-in" style={{ padding: 'var(--spacing-xl) var(--spacing-md)' }}>
@@ -126,8 +134,15 @@ export default function ProfilePage() {
                         ) : (
                             <div style={{ display: 'grid', gap: '12px' }}>
                                 {[...profile.completedSessions].reverse().slice(0, 5).map((sid, idx) => {
-                                    const [pid, week, day] = sid.split('-');
-                                    const prog = programsData.find(p => p.id === parseInt(pid));
+                                    const parts = sid.split('-');
+                                    // Handle legacy "PID-W-D" and new "T-PID-W-D"
+                                    const track = parts.length === 4 ? parts[0] : 'A';
+                                    const pid = parts.length === 4 ? parts[1] : parts[0];
+                                    const week = parts.length === 4 ? parts[2] : parts[1];
+                                    const day = parts.length === 4 ? parts[3] : parts[2];
+
+                                    const prog = getProgramByTrackAndId(track, parseInt(pid));
+
                                     return (
                                         <div key={idx} style={{
                                             display: 'flex',
@@ -141,7 +156,9 @@ export default function ProfilePage() {
                                             <CheckCircle size={16} color="var(--color-success)" />
                                             <div>
                                                 <div style={{ fontSize: '0.9rem', fontWeight: '800' }}>Week {week}, Day {day} Complete</div>
-                                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{prog?.title}</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+                                                    {prog?.title} <span style={{ opacity: 0.5 }}>[{track}]</span>
+                                                </div>
                                             </div>
                                         </div>
                                     );
@@ -183,7 +200,7 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
 
-                                <Link href={`/track-a/programs/${activeProgram.id}`} className="btn" style={{
+                                <Link href={`${getTrackRoute(activeProgramTrack!)}/programs/${activeProgram.id}`} className="btn" style={{
                                     width: '100%',
                                     background: activeProgram.color,
                                     color: 'black',

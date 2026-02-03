@@ -34,6 +34,26 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         }
     }, [user?.profile?.liftRms]);
 
+    // Scroll to next session logic
+    useEffect(() => {
+        if (!program) return;
+
+        // Find first incomplete day in the active week
+        const firstIncompleteIdx = program.weeks
+            ?.find(w => w.week === activeWeek)
+            ?.days.findIndex((_, idx) => !isSessionComplete(activeWeek, idx + 1));
+
+        if (firstIncompleteIdx !== undefined && firstIncompleteIdx !== -1) {
+            // Delay slightly to ensure DOM is ready
+            setTimeout(() => {
+                const element = document.getElementById(`day-${firstIncompleteIdx}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+        }
+    }, [activeWeek, user?.profile?.completedSessions]);
+
     const updateRm = (lift: string, value: string) => {
         const liftKey = lift.toLowerCase();
         const newRms = { ...liftRms, [liftKey]: value };
@@ -43,12 +63,12 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
 
     const isSessionComplete = (week: number, day: number) => {
         if (!user?.profile || !program) return false;
-        return user.profile.completedSessions.includes(`${program.id}-${week}-${day}`);
+        return user.profile.completedSessions.includes(`A-${program.id}-${week}-${day}`);
     };
 
     const handleCompleteSession = (week: number, dayNum: number) => {
         if (!program) return;
-        markSessionComplete(program.id, activeWeek, dayNum);
+        markSessionComplete('A', program.id, week, dayNum);
     };
 
     const renderExercise = (ex: string, dayFocus: string) => {
@@ -156,7 +176,10 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
 
     const handleEnroll = () => {
         if (program) {
-            updateProfile({ activeProgramId: program.id });
+            updateProfile({
+                activeProgramId: program.id,
+                activeProgramTrack: 'A'
+            });
             router.push('/profile');
         }
     };
@@ -198,9 +221,15 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                             <div style={{ display: 'flex', alignItems: 'center' }}><BarChart size={16} style={{ marginRight: '6px' }} /> {program.level}</div>
                         </div>
                     </div>
-                    <button onClick={handleEnroll} className="btn btn-primary" style={{ background: program.color, cursor: 'pointer' }}>
-                        Enroll Now
-                    </button>
+                    {user?.profile?.activeProgramId === program.id && user?.profile?.activeProgramTrack === 'A' ? (
+                        <div style={{ background: `${program.color}20`, color: program.color, padding: '10px 20px', borderRadius: 'var(--radius-md)', fontWeight: '800', fontSize: '0.9rem', border: `1px solid ${program.color}40` }}>
+                            ACTIVE ENROLLMENT
+                        </div>
+                    ) : (
+                        <button onClick={handleEnroll} className="btn btn-primary" style={{ background: program.color, cursor: 'pointer' }}>
+                            Enroll Now
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -243,7 +272,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                             </h2>
                             <div style={{ display: 'grid', gap: 'var(--spacing-md)' }}>
                                 {currentWeekData.days.map((day, idx) => (
-                                    <div key={idx} style={{
+                                    <div key={idx} id={`day-${idx}`} style={{
                                         background: 'var(--color-surface)',
                                         padding: 'var(--spacing-md)',
                                         borderRadius: 'var(--radius-md)',

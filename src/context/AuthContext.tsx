@@ -7,7 +7,8 @@ interface UserProfile {
     displayName: string;
     liftRms: Record<string, string>;
     activeProgramId: number | null;
-    completedSessions: string[]; // e.g., ["3-1-1"] for Program 3, Week 1, Day 1
+    activeProgramTrack: string | null; // A, B, or C
+    completedSessions: string[]; // e.g., ["A-3-1-1"] for Track A, Program 3, Week 1, Day 1
 }
 
 interface User {
@@ -26,7 +27,7 @@ interface AuthContextType {
     logout: () => void;
     upgradeSubscription: () => Promise<void>;
     updateProfile: (updates: Partial<UserProfile>) => void;
-    markSessionComplete: (programId: number, week: number, day: number) => void;
+    markSessionComplete: (track: string, programId: number, week: number, day: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     displayName: parsedUser.username,
                     liftRms: savedRms ? JSON.parse(savedRms) : {},
                     activeProgramId: null,
+                    activeProgramTrack: null,
                     completedSessions: []
                 };
             }
@@ -73,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 displayName: email.split('@')[0],
                 liftRms: {},
                 activeProgramId: null,
+                activeProgramTrack: null,
                 completedSessions: []
             }
         };
@@ -101,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 displayName: username,
                 liftRms: {},
                 activeProgramId: null,
+                activeProgramTrack: null,
                 completedSessions: []
             }
         };
@@ -126,10 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const markSessionComplete = (programId: number, week: number, day: number) => {
+    const markSessionComplete = (track: string, programId: number, week: number, day: number) => {
         if (!user || !user.profile) return;
 
-        const sessionId = `${programId}-${week}-${day}`;
+        const sessionId = `${track}-${programId}-${week}-${day}`;
         if (user.profile.completedSessions.includes(sessionId)) return;
 
         const updatedSessions = [...user.profile.completedSessions, sessionId];
