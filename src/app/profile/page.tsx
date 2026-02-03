@@ -1,3 +1,5 @@
+'use client';
+
 import { useAuth } from '@/context/AuthContext';
 import { allPrograms, getProgramByTrackAndId } from '@/lib/allPrograms';
 import { User, Activity, CheckCircle, BarChart, Calendar, ChevronRight, TrendingUp } from 'lucide-react';
