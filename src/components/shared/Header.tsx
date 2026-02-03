@@ -6,7 +6,7 @@ import { User, LogOut, Layout, Home } from 'lucide-react';
 import { getProgramByTrackAndId } from '@/lib/allPrograms';
 
 export default function Header() {
-    const { user, logout } = useAuth();
+    const { user, logout, isLoading } = useAuth();
 
     const activeProgramId = user?.profile?.activeProgramId;
     const activeProgramTrack = user?.profile?.activeProgramTrack;
@@ -48,8 +48,8 @@ export default function Header() {
             </Link>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-                {activeProgram && (
-                    <Link href={`/track-a/programs/${activeProgram.id}`} style={{
+                {!isLoading && activeProgram && (
+                    <Link href={`/${activeProgramTrack === 'A' ? 'track-a' : activeProgramTrack === 'B' ? 'track-b' : 'track-c'}/programs/${activeProgram.id}`} style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
@@ -67,41 +67,46 @@ export default function Header() {
                     </Link>
                 )}
 
-                {user ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-                        <Link href="/profile" style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            color: 'var(--color-text-secondary)',
-                            textDecoration: 'none',
-                            fontSize: '0.9rem',
-                            fontWeight: '600',
-                        }}>
-                            <User size={18} />
-                            {user.profile?.displayName || user.username}
-                        </Link>
-                        <button
-                            onClick={logout}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                color: 'var(--color-error)',
-                                cursor: 'pointer',
-                                padding: '6px',
+                {!isLoading ? (
+                    user ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                            <Link href="/profile" style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                opacity: 0.7
-                            }}
-                            title="Logout"
-                        >
-                            <LogOut size={18} />
-                        </button>
-                    </div>
+                                gap: '8px',
+                                color: 'var(--color-text-secondary)',
+                                textDecoration: 'none',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                            }}>
+                                <User size={18} />
+                                {user.profile?.displayName || user.username}
+                            </Link>
+                            <button
+                                onClick={logout}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'var(--color-error)',
+                                    cursor: 'pointer',
+                                    padding: '6px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    opacity: 0.7
+                                }}
+                                title="Logout"
+                            >
+                                <LogOut size={18} />
+                            </button>
+                        </div>
+                    ) : (
+                        <Link href="/login" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                            Join The 1%
+                        </Link>
+                    )
                 ) : (
-                    <Link href="/login" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-                        Join The 1%
-                    </Link>
+                    // Optional: Add a skeleton loader here if needed, or render nothing to minimize layout shift
+                    <div style={{ width: '100px', height: '32px' }}></div>
                 )}
             </div>
         </nav>
