@@ -450,7 +450,7 @@ export const programsData = [
                 week: 1,
                 title: 'Developing RFD',
                 days: [
-                    { day: 'Day 1', focus: 'Contrast Snatch', exercises: ['Snatch Pull + Box Jump', 'Power Snatch (6x2)'] },
+                    { day: 'Day 1', focus: 'Contrast Snatch', exercises: ['Snatch Pull + Box Jump (4 sets x 3+3 reps)', 'Power Snatch (6x2)'] },
                     { day: 'Day 2', focus: 'Plyometrics Lower', exercises: ['Depth Jumps (4x3)', 'Broad Jumps (4x3)'] }
                 ]
             },
@@ -466,7 +466,7 @@ export const programsData = [
                 week: 3,
                 title: 'Contrast Peaks',
                 days: [
-                    { day: 'Day 1', focus: 'French Contrast', exercises: ['Squat (Heavy) + Hurdle Hop + Loaded Jump + Sprint'] },
+                    { day: 'Day 1', focus: 'French Contrast', exercises: ['French Contrast: 4 Rounds (2 Heavy Squat > 2 Hurdle Hops > 3 Loaded Jumps > 10m Sprint)'] },
                     { day: 'Day 2', focus: 'Power Enurance', exercises: ['Power Clean Clusters (3.3.3 x 3 sets)'] }
                 ]
             },
