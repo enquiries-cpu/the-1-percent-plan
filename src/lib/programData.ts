@@ -475,7 +475,7 @@ export const programsData = [
                 title: 'Max Velocity',
                 days: [
                     { day: 'Day 1', focus: 'Max Height', exercises: ['Max Box Jump Test', 'Max Broad Jump Test'] },
-                    { day: 'Day 2', focus: 'Speed', exercises: ['Sprints (10x10m)', 'Agility Drills'] }
+                    { day: 'Day 2', focus: 'Speed', exercises: ['Sprints (10x10m)', 'Agility Drills (e.g., 5-10-5 Pro Agility, L-Drill, T-Drill)'] }
                 ]
             }
         ],
