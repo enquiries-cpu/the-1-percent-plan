@@ -298,7 +298,7 @@ export const programsData = [
                 week: 4,
                 title: 'Integration',
                 days: [
-                    { day: 'Day 1', focus: 'Full Lifts (Tempo)', exercises: ['Tempo Snatch (3s pull, 3s catch) (5x2 @ 60%)', 'Tempo Clean (3s pull, 3s catch) (5x2 @ 60%)'] },
+                    { day: 'Day 1', focus: 'Full Lifts (Tempo)', exercises: ['Tempo Snatch (Slow Pull: 3s Floor to Hip, Pause Catch: 3s in Bottom) (5x2 @ 60%)', 'Tempo Clean (Slow Pull: 3s Floor to Hip, Pause Catch: 3s in Bottom) (5x2 @ 60%)'] },
                     { day: 'Day 2', focus: 'Flow', exercises: ['Barbell Complex: Clean Pull + Hang Power Clean + Front Squat + Push Press + Back Squat (5 Rounds, 1 rep each, build weight)'] }
                 ]
             }
