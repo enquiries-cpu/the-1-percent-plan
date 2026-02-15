@@ -410,7 +410,7 @@ export const programsData = [
                 title: 'Volume +',
                 days: [
                     { day: 'Day 1', focus: 'Snatch Volume', exercises: ['Snatch (6x2 @ 82%)'] },
-                    { day: 'Day 2', focus: 'Accessories', exercises: ['DB Row', 'DB Press'] }
+                    { day: 'Day 2', focus: 'Accessories', exercises: ['DB Row (3x10 per arm)', 'DB Press (3x10)'] }
                 ]
             },
             {
@@ -424,7 +424,7 @@ export const programsData = [
                 week: 7,
                 title: 'Peak',
                 days: [
-                    { day: 'Day 1', focus: 'Complexes', exercises: ['Snatch + OHS (Max)', 'Clean + Jerk (Max)'] }
+                    { day: 'Day 1', focus: 'Complexes', exercises: ['Snatch + OHS (Work to Max Complex)', 'Clean + Jerk (Work to Max Complex)'] }
                 ]
             },
             {
