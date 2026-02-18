@@ -58,7 +58,7 @@ export default function OnboardingPage() {
         <div className="animate-fade-in">
           <h1 style={{ fontSize: '2rem', marginBottom: 'var(--spacing-md)' }}>What is your primary focus?</h1>
           <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-xl)' }}>
-            We'll tailor your daily programming based on this goal.
+            We&apos;ll tailor your daily programming based on this goal.
           </p>
 
           <div style={{ display: 'grid', gap: 'var(--spacing-md)' }}>
@@ -145,7 +145,7 @@ export default function OnboardingPage() {
         <div className="animate-fade-in">
           <h1 style={{ fontSize: '2rem', marginBottom: 'var(--spacing-md)' }}>Sync Wearables</h1>
           <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-xl)' }}>
-            Connect your device to enable "Daily Readiness" logic.
+            Connect your device to enable &quot;Daily Readiness&quot; logic.
           </p>
 
           <div style={{ display: 'grid', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-xl)' }}>

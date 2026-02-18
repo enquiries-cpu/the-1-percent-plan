@@ -25,7 +25,7 @@ export default function LiftingPage() {
                     <Link href="/" style={{ padding: '8px', marginRight: 'var(--spacing-sm)' }}>
                         <ArrowLeft size={24} color="var(--color-text-secondary)" />
                     </Link>
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: '700' }}>Today's Session</h1>
+                    <h1 style={{ fontSize: '1.5rem', fontWeight: '700' }}>Today&apos;s Session</h1>
                 </header>
 
                 {/* Main Set - Gap Method or Active Program */}

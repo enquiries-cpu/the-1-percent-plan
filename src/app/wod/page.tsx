@@ -77,7 +77,7 @@ export default function DailyWodPage() {
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--spacing-lg)' }}>
                             <div>
-                                <h2 style={{ fontSize: '2rem', marginBottom: '4px' }}>"{dailyProgram.name}"</h2>
+                                <h2 style={{ fontSize: '2rem', marginBottom: '4px' }}>&quot;{dailyProgram.name}&quot;</h2>
                                 <span style={{
                                     padding: '4px 8px',
                                     borderRadius: '4px',
@@ -125,7 +125,7 @@ export default function DailyWodPage() {
                     <div style={{ marginBottom: 'var(--spacing-xl)' }}>
                         <h3 style={{ display: 'flex', alignItems: 'center', fontSize: '1.1rem', marginBottom: 'var(--spacing-md)' }}>
                             <Info size={16} style={{ marginRight: '8px' }} color="var(--color-brand-orange)" />
-                            Coach's Intent
+                            Coach&apos;s Intent
                         </h3>
                         <div style={{
                             background: 'var(--color-surface)',

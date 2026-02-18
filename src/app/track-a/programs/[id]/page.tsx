@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { programsData } from '@/lib/programData';
 import PercentageCalculator from '@/components/shared/PercentageCalculator';
 import Link from 'next/link';
@@ -34,14 +34,18 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         }
     }, [profile?.liftRms]);
 
+    const isSessionComplete = useCallback((week: number, day: number) => {
+        if (!profile || !program) return false;
+        return (profile.completedSessions || []).includes(`A-${program.id}-${week}-${day}`);
+    }, [profile, program]);
+
     // Scroll to next session logic
     useEffect(() => {
         if (!program) return;
 
         // Find first incomplete day in the active week
         const firstIncompleteIdx = program.weeks
-            ?.find(w => w.week === activeWeek)
-            ?.days.findIndex((_, idx) => !isSessionComplete(activeWeek, idx + 1));
+            ?.[activeWeek - 1]?.days.findIndex((_, idx) => !isSessionComplete(activeWeek, idx + 1));
 
         if (firstIncompleteIdx !== undefined && firstIncompleteIdx !== -1) {
             // Delay slightly to ensure DOM is ready
@@ -52,18 +56,13 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                 }
             }, 300);
         }
-    }, [activeWeek, profile?.completedSessions]);
+    }, [activeWeek, profile?.completedSessions, isSessionComplete, program]);
 
     const updateRm = (lift: string, value: string) => {
         const liftKey = lift.toLowerCase();
         const newRms = { ...liftRms, [liftKey]: value };
         setLiftRms(newRms);
         updateProfile({ liftRms: newRms });
-    };
-
-    const isSessionComplete = (week: number, day: number) => {
-        if (!profile || !program) return false;
-        return (profile.completedSessions || []).includes(`A-${program.id}-${week}-${day}`);
     };
 
     const handleCompleteSession = (week: number, dayNum: number) => {

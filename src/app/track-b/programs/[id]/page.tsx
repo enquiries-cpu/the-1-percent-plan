@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { gymnasticsData } from '@/lib/gymnasticsData';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -12,6 +12,11 @@ export default function GymnasticsProgramDetail({ params }: { params: { id: stri
     const { user, profile, updateProfile, markSessionComplete, toggleEnrollment } = useAuth();
     const [activeWeek, setActiveWeek] = useState(1);
     const program = gymnasticsData.find(p => p.id === parseInt(params.id));
+
+    const isSessionComplete = useCallback((week: number, day: number) => {
+        if (!profile || !program) return false;
+        return (profile.completedSessions || []).includes(`B-${program.id}-${week}-${day}`);
+    }, [profile, program]);
 
     // Scroll to next session logic
     useEffect(() => {
@@ -29,12 +34,7 @@ export default function GymnasticsProgramDetail({ params }: { params: { id: stri
                 }
             }, 300);
         }
-    }, [activeWeek, profile?.completedSessions]);
-
-    const isSessionComplete = (week: number, day: number) => {
-        if (!profile || !program) return false;
-        return (profile.completedSessions || []).includes(`B-${program.id}-${week}-${day}`);
-    };
+    }, [activeWeek, profile?.completedSessions, isSessionComplete, program]);
 
     const handleCompleteSession = (week: number, dayNum: number) => {
         if (!program) return;

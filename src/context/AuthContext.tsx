@@ -112,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
 
         initializeAuth();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const signInWithPassword = async (email: string, password: string) => {
