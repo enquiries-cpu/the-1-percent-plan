@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
 
     // Fetch profile helper
-    const fetchProfile = async (userId: string) => {
+    const fetchProfile = useCallback(async (userId: string) => {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
@@ -73,11 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return null;
         }
         return data as UserProfile;
-    };
+    }, [supabase]);
 
     useEffect(() => {
         const initializeAuth = async () => {
-            // Check active session
             const { data: { session } } = await supabase.auth.getSession();
 
             if (session?.user) {
@@ -90,15 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
             setIsLoading(false);
 
-            // Listen for changes
             const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                 if (session?.user) {
                     setUser(session.user);
-                    // Only fetch profile if we don't have it or it changed
-                    if (!profile || profile.id !== session.user.id) {
-                        const userProfile = await fetchProfile(session.user.id);
-                        setProfile(userProfile);
-                    }
+                    const userProfile = await fetchProfile(session.user.id);
+                    setProfile(userProfile);
                 } else {
                     setUser(null);
                     setProfile(null);
@@ -112,8 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
 
         initializeAuth();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [fetchProfile, supabase.auth]);
 
     const signInWithPassword = async (email: string, password: string) => {
         setIsLoading(true);

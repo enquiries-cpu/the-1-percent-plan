@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageCircle, X, Send, User, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -21,6 +21,21 @@ export default function CustomerChat() {
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const supabase = createClient();
+
+    const scrollToBottom = useCallback(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, []);
+
+    const fetchMessages = useCallback(async () => {
+        if (!user) return;
+        const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true });
+
+        if (data) setMessages(data);
+    }, [user, supabase]);
 
     useEffect(() => {
         if (user && isOpen) {
@@ -48,22 +63,11 @@ export default function CustomerChat() {
                 supabase.removeChannel(channel);
             };
         }
-    }, [user, isOpen]);
+    }, [user, isOpen, fetchMessages, supabase]);
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
-
-    const fetchMessages = async () => {
-        if (!user) return;
-        const { data, error } = await supabase
-            .from('messages')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: true });
-
-        if (data) setMessages(data);
-    };
+    }, [messages, scrollToBottom]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -86,9 +90,6 @@ export default function CustomerChat() {
         setIsSending(false);
     };
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
 
     if (!user) return null; // Only show for logged in users
 
@@ -141,8 +142,8 @@ export default function CustomerChat() {
                                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                         <div
                                             className={`max-w-[80%] p-3 rounded-2xl text-sm ${isMe
-                                                    ? 'bg-brand-orange text-white rounded-br-none'
-                                                    : 'bg-zinc-800 text-zinc-200 rounded-bl-none'
+                                                ? 'bg-brand-orange text-white rounded-br-none'
+                                                : 'bg-zinc-800 text-zinc-200 rounded-bl-none'
                                                 }`}
                                         >
                                             {msg.content}

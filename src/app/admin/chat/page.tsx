@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { Search, Send, User, MessageCircle, Clock, Check } from 'lucide-react';
@@ -34,45 +34,8 @@ export default function AdminChatPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const supabase = createClient();
 
-    useEffect(() => {
-        fetchUsers();
-
-        // Subscribe to ALL messages to update user list in realtime
-        const channel = supabase
-            .channel('admin_messages_all')
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'messages' },
-                (payload) => {
-                    const msg = payload.new as Message;
-                    // Refresh user list to show new message/update order
-                    fetchUsers();
-
-                    // If the message belongs to the current open chat, add it
-                    if (msg.user_id === selectedUserId) {
-                        setMessages((prev) => [...prev, msg]);
-                    }
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [selectedUserId]);
-
-    useEffect(() => {
-        if (selectedUserId) {
-            fetchMessages(selectedUserId);
-        }
-    }, [selectedUserId]);
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
-
-    const fetchUsers = async () => {
-        // 1. Get all users who have messages
+    const fetchUsers = useCallback(async () => {
+        // ... (body of fetchUsers)
         const { data: messagesData, error: messagesError } = await supabase
             .from('messages')
             .select('user_id, content, created_at, is_read')
@@ -80,17 +43,14 @@ export default function AdminChatPage() {
 
         if (messagesError) return;
 
-        // 2. Get unique user IDs and their last message
         const userMap = new Map<string, any>();
         messagesData.forEach((msg) => {
             if (!userMap.has(msg.user_id)) {
                 userMap.set(msg.user_id, {
                     last_message: msg.content,
                     last_message_at: msg.created_at,
-                    unread_count: msg.is_read ? 0 : 1 // This is a simplification
+                    unread_count: msg.is_read ? 0 : 1
                 });
-            } else if (!msg.is_read) {
-                // userMap.get(msg.user_id).unread_count++;
             }
         });
 
@@ -100,7 +60,6 @@ export default function AdminChatPage() {
             return;
         }
 
-        // 3. Fetch profile details for these users
         const { data: profiles, error: profilesError } = await supabase
             .from('profiles')
             .select('id, email, display_name')
@@ -115,9 +74,9 @@ export default function AdminChatPage() {
             setUsers(usersList);
         }
         setIsLoading(false);
-    };
+    }, [supabase]);
 
-    const fetchMessages = async (userId: string) => {
+    const fetchMessages = useCallback(async (userId: string) => {
         const { data, error } = await supabase
             .from('messages')
             .select('*')
@@ -126,13 +85,42 @@ export default function AdminChatPage() {
 
         if (data) setMessages(data);
 
-        // Mark as read
         await supabase
             .from('messages')
             .update({ is_read: true })
             .eq('user_id', userId)
             .eq('is_read', false);
-    };
+    }, [supabase]);
+
+    useEffect(() => {
+        fetchUsers();
+
+        const channel = supabase
+            .channel('admin_messages_all')
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'messages' },
+                (payload) => {
+                    const msg = payload.new as Message;
+                    fetchUsers();
+
+                    if (msg.user_id === selectedUserId) {
+                        setMessages((prev) => [...prev, msg]);
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [selectedUserId, fetchUsers, supabase]);
+
+    useEffect(() => {
+        if (selectedUserId) {
+            fetchMessages(selectedUserId);
+        }
+    }, [selectedUserId, fetchMessages]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -241,8 +229,8 @@ export default function AdminChatPage() {
                                         <div className="max-w-[70%] group">
                                             <div
                                                 className={`p-3 rounded-2xl text-sm ${isFromAdmin
-                                                        ? 'bg-brand-orange text-white rounded-br-none'
-                                                        : 'bg-zinc-800 text-zinc-200 rounded-bl-none'
+                                                    ? 'bg-brand-orange text-white rounded-br-none'
+                                                    : 'bg-zinc-800 text-zinc-200 rounded-bl-none'
                                                     }`}
                                             >
                                                 {msg.content}

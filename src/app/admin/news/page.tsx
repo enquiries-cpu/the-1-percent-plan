@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { Plus, Trash2, Send, Clock, BookOpen } from 'lucide-react';
@@ -21,11 +21,7 @@ export default function AdminNewsPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const supabase = createClient();
 
-    useEffect(() => {
-        fetchNews();
-    }, []);
-
-    const fetchNews = async () => {
+    const fetchNews = useCallback(async () => {
         setIsLoading(true);
         const { data, error } = await supabase
             .from('news')
@@ -34,7 +30,11 @@ export default function AdminNewsPage() {
 
         if (data) setNews(data);
         setIsLoading(false);
-    };
+    }, [supabase]);
+
+    useEffect(() => {
+        fetchNews();
+    }, [fetchNews]);
 
     const handlePostNews = async (e: React.FormEvent) => {
         e.preventDefault();

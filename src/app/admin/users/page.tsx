@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { UserProfile } from '@/context/AuthContext';
 import { Trash2, UserCog, Mail } from 'lucide-react';
@@ -10,11 +10,7 @@ export default function AdminUsersPage() {
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
@@ -22,7 +18,11 @@ export default function AdminUsersPage() {
 
         if (data) setUsers(data as any); // Cast for simplicity now
         setLoading(false);
-    };
+    }, [supabase]);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
 
     const handleCancelSubscription = async (userId: string) => {
         if (!confirm('Are you sure you want to cancel this users subscription?')) return;
