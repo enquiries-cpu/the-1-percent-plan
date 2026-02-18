@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/shared/Header';
+import CustomerChat from '@/components/chat/CustomerChat';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export default function RootLayout({
                 <AuthProvider>
                     <Header />
                     {children}
+                    <CustomerChat />
                 </AuthProvider>
             </body>
         </html>

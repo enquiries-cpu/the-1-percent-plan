@@ -5,15 +5,20 @@ import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 
 export default function RegisterPage() {
-    const { register, isLoading } = useAuth();
+    const { signUp, isLoading } = useAuth();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
         if (username && email && password) {
-            await register(username, email);
+            const { error } = await signUp(email, password, username);
+            if (error) {
+                setError(error.message);
+            }
         }
     };
 
@@ -37,6 +42,12 @@ export default function RegisterPage() {
                     <h1 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px' }}>Join THE 1%</h1>
                     <p style={{ color: 'var(--color-text-secondary)' }}>Elite programming for those who refuse to be average.</p>
                 </div>
+
+                {error && (
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-md mb-4 text-sm text-center">
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 'var(--spacing-lg)' }}>
                     <div>

@@ -2,13 +2,21 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { allPrograms, getProgramByTrackAndId } from '@/lib/allPrograms';
-import { User, Activity, CheckCircle, BarChart, Calendar, ChevronRight, TrendingUp } from 'lucide-react';
+import { User, Activity, CheckCircle, BarChart, Calendar, ChevronRight, TrendingUp, Settings } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProfilePage() {
-    const { user, updateProfile } = useAuth();
+    const { user, profile, updateProfile, isLoading } = useAuth();
 
-    if (!user || !user.profile) {
+    if (isLoading) {
+        return (
+            <div className="container" style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
+                <div className="animate-pulse" style={{ height: '40px', width: '200px', background: 'var(--color-surface)', margin: '0 auto', borderRadius: '8px' }}></div>
+            </div>
+        );
+    }
+
+    if (!user || !profile) {
         return (
             <div className="container" style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>
                 <p>Please log in to view your profile.</p>
@@ -17,17 +25,17 @@ export default function ProfilePage() {
         );
     }
 
-    const { profile } = user;
-
+    // Use profile directly from useAuth()
     // Fallback/Migration: Use activeEnrollments, or construct from legacy if missing
     const enrollments = (profile.activeEnrollments && profile.activeEnrollments.length > 0)
         ? profile.activeEnrollments
-        : (profile.activeProgramId && profile.activeProgramTrack)
-            ? [{ track: profile.activeProgramTrack, id: profile.activeProgramId, enrollmentDate: new Date().toISOString() }]
-            : [];
+        : [];
+
+    const liftRms = profile.liftRms || {};
+    const completedSessions = profile.completedSessions || [];
 
     const handleRmChange = (liftId: string, value: string) => {
-        const newRms = { ...profile.liftRms, [liftId.toLowerCase()]: value };
+        const newRms = { ...liftRms, [liftId.toLowerCase()]: value };
         updateProfile({ liftRms: newRms });
     };
 
@@ -45,29 +53,60 @@ export default function ProfilePage() {
         { id: 'bench press', label: 'Bench Press' }
     ];
 
+    const handleDevAdminToggle = async () => {
+        const newRole = profile.role === 'admin' ? 'user' : 'admin';
+        await updateProfile({ role: newRole });
+        window.location.reload();
+    };
+
     return (
         <main className="container animate-fade-in" style={{ padding: 'var(--spacing-xl) var(--spacing-md)' }}>
             {/* Profile Header */}
             <header style={{ marginBottom: 'var(--spacing-xl)', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
                 <div>
                     <h1 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-0.02em', marginBottom: '8px' }}>
-                        {profile.displayName.toUpperCase()}
+                        {(profile.display_name || user.email?.split('@')[0] || 'Member').toUpperCase()}
                     </h1>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: '600' }}>{user.email}</span>
-                        <div style={{ background: 'var(--color-brand-orange)', color: 'black', fontSize: '0.65rem', fontWeight: '900', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
-                            ELITE STATUS
+                        <div style={{ background: profile.role === 'admin' ? 'var(--color-brand-blue)' : 'var(--color-brand-orange)', color: 'black', fontSize: '0.65rem', fontWeight: '900', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
+                            {profile.role === 'admin' ? 'ADMIN ACCESS' : 'ELITE STATUS'}
                         </div>
                     </div>
                 </div>
-                {enrollments.length > 0 && (
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: '800', opacity: 0.6, marginBottom: '4px' }}>CURRENT FOCUS</div>
-                        <div style={{ fontSize: '1.25rem', fontWeight: '800', color: getProgramByTrackAndId(enrollments[0].track, enrollments[0].id)?.color }}>
-                            {getProgramByTrackAndId(enrollments[0].track, enrollments[0].id)?.title.toUpperCase()}
+
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {user?.email === 'damonpf@hotmail.co.uk' && (
+                        <button
+                            onClick={handleDevAdminToggle}
+                            style={{
+                                background: profile.role === 'admin' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                                border: `1px solid ${profile.role === 'admin' ? '#ef4444' : '#22c55e'}`,
+                                color: profile.role === 'admin' ? '#ef4444' : '#22c55e',
+                                padding: '8px 16px',
+                                borderRadius: '8px',
+                                fontSize: '0.75rem',
+                                fontWeight: '800',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            <Settings size={14} />
+                            {profile.role === 'admin' ? 'EXIT ADMIN MODE' : 'ENTER ADMIN MODE'}
+                        </button>
+                    )}
+
+                    {enrollments.length > 0 && (
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: '800', opacity: 0.6, marginBottom: '4px' }}>CURRENT FOCUS</div>
+                            <div style={{ fontSize: '1.25rem', fontWeight: '800', color: getProgramByTrackAndId(enrollments[0].track, enrollments[0].id)?.color }}>
+                                {getProgramByTrackAndId(enrollments[0].track, enrollments[0].id)?.title.toUpperCase()}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--spacing-xl)' }}>
@@ -87,7 +126,7 @@ export default function ProfilePage() {
                                     <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: '800', color: 'var(--color-text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>{lift.label}</label>
                                     <input
                                         type="number"
-                                        value={profile.liftRms[lift.id.toLowerCase()] || ''}
+                                        value={liftRms[lift.id.toLowerCase()] || ''}
                                         onChange={(e) => handleRmChange(lift.id, e.target.value)}
                                         placeholder="0"
                                         style={{
@@ -114,11 +153,11 @@ export default function ProfilePage() {
                             <TrendingUp size={20} color="var(--color-brand-blue)" />
                             PROGRESSION LOG
                         </h2>
-                        {profile.completedSessions.length === 0 ? (
+                        {completedSessions.length === 0 ? (
                             <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>No sessions completed yet. Start training to see your timeline!</p>
                         ) : (
                             <div style={{ display: 'grid', gap: '12px' }}>
-                                {[...profile.completedSessions].reverse().slice(0, 5).map((sid, idx) => {
+                                {[...completedSessions].reverse().slice(0, 5).map((sid, idx) => {
                                     const parts = sid.split('-');
                                     // Handle legacy "PID-W-D" and new "T-PID-W-D"
                                     const track = parts.length === 4 ? parts[0] : 'A';
@@ -166,7 +205,7 @@ export default function ProfilePage() {
                                     const program = getProgramByTrackAndId(enrollment.track, enrollment.id);
                                     if (!program) return null;
 
-                                    const completedCount = profile.completedSessions.filter(s => s.startsWith(`${enrollment.track}-${program.id}-`)).length;
+                                    const completedCount = completedSessions.filter(s => s.startsWith(`${enrollment.track}-${program.id}-`)).length;
                                     let totalCount = 0;
                                     program.weeks?.forEach(w => totalCount += w.days.length);
                                     const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
@@ -238,11 +277,11 @@ export default function ProfilePage() {
                         <div style={{ display: 'grid', gap: '16px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                                 <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Total Sessions</span>
-                                <span style={{ fontWeight: '800' }}>{profile.completedSessions.length}</span>
+                                <span style={{ fontWeight: '800' }}>{completedSessions.length}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                                 <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Lifts Logged</span>
-                                <span style={{ fontWeight: '800' }}>{Object.values(profile.liftRms).filter(v => !!v).length}</span>
+                                <span style={{ fontWeight: '800' }}>{Object.values(liftRms).filter(v => !!v).length}</span>
                             </div>
                         </div>
                     </section>

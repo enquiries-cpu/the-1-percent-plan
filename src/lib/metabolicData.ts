@@ -14,7 +14,7 @@ export const metabolicData = [
                 week: 1,
                 title: 'Base Assessment',
                 days: [
-                    { day: 'Day 1', focus: 'Zone 2 Establish', exercises: ['45 min Bike Erg (Hold consistent RPM)'] },
+                    { day: 'Day 1', focus: 'Zone 2 Establish', exercises: ['Bike Erg: 45 min @ 75-80 RPM', 'Rower: 45 min @ 18-20 s/m', 'Air Bike: 40 min @ 50-55 RPM'] },
                     { day: 'Day 2', focus: 'Active Recovery', exercises: ['30 min Walk or Swim'] },
                     { day: 'Day 3', focus: 'Cadence Drills', exercises: ['30 min Ride (5 min @ 70rpm / 5 min @ 90rpm)'] }
                 ]
@@ -23,7 +23,7 @@ export const metabolicData = [
                 week: 2,
                 title: 'Volume Step 1',
                 days: [
-                    { day: 'Day 1', focus: 'Linear Volume', exercises: ['50 min Bike/Row (Zone 2)'] },
+                    { day: 'Day 1', focus: 'Linear Volume', exercises: ['Bike Erg: 50 min @ 75-80 RPM', 'Rower: 50 min @ 18-20 s/m', 'Air Bike: 45 min @ 50-55 RPM'] },
                     { day: 'Day 2', focus: 'Flush', exercises: ['30 min Easy Movement'] },
                     { day: 'Day 3', focus: 'Mixed Modal Z2', exercises: ['45 min AMRAP (Bike/Row/Jog) @ nasal breath pace'] }
                 ]
@@ -32,7 +32,7 @@ export const metabolicData = [
                 week: 3,
                 title: 'Volume Step 2',
                 days: [
-                    { day: 'Day 1', focus: 'Linear Volume', exercises: ['60 min Continuous Effort (Zone 2)'] },
+                    { day: 'Day 1', focus: 'Linear Volume', exercises: ['Bike Erg: 60 min @ 75-80 RPM', 'Rower: 60 min @ 18-20 s/m', 'Ski Erg: 60 min @ 35-40 s/m'] },
                     { day: 'Day 2', focus: 'Recovery', exercises: ['Mobility Flow'] },
                     { day: 'Day 3', focus: 'Split Intervals', exercises: ['2 x 30 min (Rest 5 min)'] }
                 ]
@@ -41,7 +41,7 @@ export const metabolicData = [
                 week: 4,
                 title: 'Volume Peak',
                 days: [
-                    { day: 'Day 1', focus: 'Long Ride', exercises: ['75 min Bike Erg'] },
+                    { day: 'Day 1', focus: 'Long Ride', exercises: ['Bike Erg: 75 min @ 75-80 RPM', 'Rower: 75 min @ 18-20 s/m'] },
                     { day: 'Day 2', focus: 'Recovery', exercises: ['Swim 20 min'] },
                     { day: 'Day 3', focus: 'Tempo Z2', exercises: ['3 x 20 min @ upper limit of Z2'] }
                 ]
@@ -99,7 +99,7 @@ export const metabolicData = [
                 week: 1,
                 title: 'Interval Intro',
                 days: [
-                    { day: 'Day 1', focus: 'Threshold Intervals', exercises: ['3 x 8 min @ Threshold (Rest 4 min)'] },
+                    { day: 'Day 1', focus: 'Threshold Intervals', exercises: ['Bike Erg: 3 x 4000m (Rest 2:00)', 'Row/Ski: 3 x 2000m (Rest 2:00)', 'Air Bike: 3 x 8 min @ 60 RPM (Rest 3:00)'] },
                     { day: 'Day 2', focus: 'Flush', exercises: ['30 min Z1 Recovery'] },
                     { day: 'Day 3', focus: 'Tempo', exercises: ['20 min Continuous Tempo (Sub-threshold)'] }
                 ]
@@ -108,7 +108,7 @@ export const metabolicData = [
                 week: 2,
                 title: 'Density',
                 days: [
-                    { day: 'Day 1', focus: 'Threshold Intervals', exercises: ['4 x 8 min @ Threshold (Rest 3 min)'] },
+                    { day: 'Day 1', focus: 'Threshold Intervals', exercises: ['Bike Erg: 4 x 4000m (Rest 2:00)', 'Row/Ski: 4 x 2000m (Rest 2:00)', 'Air Bike: 4 x 8 min @ 60 RPM (Rest 3:00)'] },
                     { day: 'Day 2', focus: 'Flush', exercises: ['30 min Easy'] },
                     { day: 'Day 3', focus: 'Over/Unders', exercises: ['3 x 9 min (2 min Under / 1 min Over)'] }
                 ]
@@ -117,7 +117,7 @@ export const metabolicData = [
                 week: 3,
                 title: 'Duration',
                 days: [
-                    { day: 'Day 1', focus: 'Long Intervals', exercises: ['3 x 12 min @ Threshold (Rest 5 min)'] },
+                    { day: 'Day 1', focus: 'Long Intervals', exercises: ['Bike Erg: 3 x 6000m (Rest 3:00)', 'Row/Ski: 3 x 3000m (Rest 3:00)', 'Air Bike: 3 x 12 min @ 60 RPM (Rest 4:00)'] },
                     { day: 'Day 2', focus: 'Recovery', exercises: ['Mobility Flow'] },
                     { day: 'Day 3', focus: 'Continuous', exercises: ['30 min Time Trial Pace'] }
                 ]
@@ -165,7 +165,7 @@ export const metabolicData = [
                 week: 1,
                 title: 'Alactic Base',
                 days: [
-                    { day: 'Day 1', focus: 'Max Watts', exercises: ['10 x 15s Sprint (Rest 2 min)'] },
+                    { day: 'Day 1', focus: 'Max Watts', exercises: ['Bike Erg: 10 x 200m Sprint (Damper 10, Rest 2:00)', 'Row/Ski: 10 x 100m Sprint (Max Watts, Rest 2:00)', 'Air Bike: 10 x 15s Max Cals (Rest 2:00)'] },
                     { day: 'Day 2', focus: 'Recovery', exercises: ['30 min Spin'] },
                     { day: 'Day 3', focus: 'Repeats', exercises: ['15 x 30s Hard / 30s Easy'] }
                 ]
@@ -174,7 +174,7 @@ export const metabolicData = [
                 week: 2,
                 title: 'Lactic Power',
                 days: [
-                    { day: 'Day 1', focus: 'Capacity', exercises: ['5 x 60s Max Effort (Rest 4 min)'] },
+                    { day: 'Day 1', focus: 'Capacity', exercises: ['Bike Erg: 5 x 1000m (Rest 4:00)', 'Row/Ski: 5 x 500m (Rest 4:00)', 'Air Bike: 5 x 25 Cals (Rest 4:00)'] },
                     { day: 'Day 2', focus: 'Flush', exercises: ['Slow Jog 30 min'] },
                     { day: 'Day 3', focus: 'Tabata', exercises: ['Tabata Bike (20s on / 10s off) x 8 rounds'] }
                 ]
@@ -183,7 +183,7 @@ export const metabolicData = [
                 week: 3,
                 title: 'Pain Cave',
                 days: [
-                    { day: 'Day 1', focus: 'Acid Bath', exercises: ['3 x 90s All Out (Rest 6 min)'] },
+                    { day: 'Day 1', focus: 'Acid Bath', exercises: ['Bike Erg: 3 x 1500m (Rest 6:00)', 'Row/Ski: 3 x 750m (Rest 6:00)', 'Air Bike: 3 x 40 Cals (Rest 6:00)'] },
                     { day: 'Day 2', focus: 'Recovery', exercises: ['Walk'] },
                     { day: 'Day 3', focus: 'Speed', exercises: ['20 x 10s Sprint (Rest 50s)'] }
                 ]
