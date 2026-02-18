@@ -44,7 +44,11 @@ interface AuthContextType {
     signUp: (email: string, password: string, username: string) => Promise<{ error: any }>;
     logout: () => Promise<void>;
     updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+    upgradeSubscription: () => Promise<void>;
+    markSessionComplete: (track: string, programId: number, week: number, day: number) => Promise<void>;
+    toggleEnrollment: (track: string, programId: number) => Promise<void>;
     isAdmin: boolean;
+    hasActiveSubscription: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -179,6 +183,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const upgradeSubscription = async () => {
+        if (!user) return;
+        await updateProfile({ subscription_status: 'active' });
+    };
+
+    const markSessionComplete = async (track: string, programId: number, week: number, day: number) => {
+        if (!user || !profile) return;
+        const sessionId = `${track}-${programId}-${week}-${day}`;
+        const completedSessions = profile.completedSessions || [];
+        if (!completedSessions.includes(sessionId)) {
+            const newSessions = [...completedSessions, sessionId];
+            await updateProfile({ completedSessions: newSessions });
+        }
+    };
+
+    const toggleEnrollment = async (track: string, programId: number) => {
+        if (!user || !profile) return;
+        const enrollments = profile.activeEnrollments || [];
+        const isEnrolled = enrollments.some(e => e.track === track && e.id === programId);
+
+        let newEnrollments;
+        if (isEnrolled) {
+            newEnrollments = enrollments.filter(e => !(e.track === track && e.id === programId));
+        } else {
+            newEnrollments = [...enrollments, { track, id: programId, enrollmentDate: new Date().toISOString() }];
+        }
+        await updateProfile({ activeEnrollments: newEnrollments });
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -189,7 +222,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             signUp,
             logout,
             updateProfile,
-            isAdmin: profile?.role === 'admin'
+            upgradeSubscription,
+            markSessionComplete,
+            toggleEnrollment,
+            isAdmin: profile?.role === 'admin',
+            hasActiveSubscription: profile?.subscription_status === 'active'
         }}>
             {children}
         </AuthContext.Provider>

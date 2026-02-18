@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function ProgramDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const { user, updateProfile, markSessionComplete, toggleEnrollment } = useAuth();
+    const { user, profile, updateProfile, markSessionComplete, toggleEnrollment } = useAuth();
     const program = programsData.find(p => p.id === parseInt(params.id));
 
     const [activeWeek, setActiveWeek] = useState(1);
@@ -29,10 +29,10 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
     });
 
     useEffect(() => {
-        if (user?.profile?.liftRms) {
-            setLiftRms(prev => ({ ...prev, ...user.profile!.liftRms }));
+        if (profile?.liftRms) {
+            setLiftRms(prev => ({ ...prev, ...profile.liftRms }));
         }
-    }, [user?.profile?.liftRms]);
+    }, [profile?.liftRms]);
 
     // Scroll to next session logic
     useEffect(() => {
@@ -52,7 +52,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
                 }
             }, 300);
         }
-    }, [activeWeek, user?.profile?.completedSessions]);
+    }, [activeWeek, profile?.completedSessions]);
 
     const updateRm = (lift: string, value: string) => {
         const liftKey = lift.toLowerCase();
@@ -62,8 +62,8 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
     };
 
     const isSessionComplete = (week: number, day: number) => {
-        if (!user?.profile || !program) return false;
-        return user.profile.completedSessions.includes(`A-${program.id}-${week}-${day}`);
+        if (!profile || !program) return false;
+        return (profile.completedSessions || []).includes(`A-${program.id}-${week}-${day}`);
     };
 
     const handleCompleteSession = (week: number, dayNum: number) => {
@@ -174,8 +174,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         return ex;
     };
 
-    const isEnrolled = user?.profile?.activeEnrollments?.some(e => e.track === 'A' && e.id === program?.id) ||
-        (user?.profile?.activeProgramId === program?.id && user?.profile?.activeProgramTrack === 'A');
+    const isEnrolled = profile?.activeEnrollments?.some(e => e.track === 'A' && e.id === program?.id);
 
     const handleEnroll = () => {
         if (program) {

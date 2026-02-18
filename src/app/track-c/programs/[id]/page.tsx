@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function MetabolicProgramDetail({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const { user, updateProfile, markSessionComplete, toggleEnrollment } = useAuth();
+    const { user, profile, updateProfile, markSessionComplete, toggleEnrollment } = useAuth();
     const [activeWeek, setActiveWeek] = useState(1);
     const program = metabolicData.find(p => p.id === parseInt(params.id));
 
@@ -29,11 +29,11 @@ export default function MetabolicProgramDetail({ params }: { params: { id: strin
                 }
             }, 300);
         }
-    }, [activeWeek, user?.profile?.completedSessions]);
+    }, [activeWeek, profile?.completedSessions]);
 
     const isSessionComplete = (week: number, day: number) => {
-        if (!user?.profile || !program) return false;
-        return user.profile.completedSessions.includes(`C-${program.id}-${week}-${day}`);
+        if (!profile || !program) return false;
+        return (profile.completedSessions || []).includes(`C-${program.id}-${week}-${day}`);
     };
 
     const handleCompleteSession = (week: number, dayNum: number) => {
@@ -41,8 +41,7 @@ export default function MetabolicProgramDetail({ params }: { params: { id: strin
         markSessionComplete('C', program.id, week, dayNum);
     };
 
-    const isEnrolled = user?.profile?.activeEnrollments?.some(e => e.track === 'C' && e.id === program?.id) ||
-        (user?.profile?.activeProgramId === program?.id && user?.profile?.activeProgramTrack === 'C');
+    const isEnrolled = profile?.activeEnrollments?.some(e => e.track === 'C' && e.id === program?.id);
 
     const handleEnroll = () => {
         if (program) {
