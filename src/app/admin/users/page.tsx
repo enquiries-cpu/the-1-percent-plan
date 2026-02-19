@@ -13,7 +13,7 @@ export default function AdminUsersPage() {
     const [loading, setLoading] = useState(true);
 
     const fetchUsers = useCallback(async () => {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('profiles')
             .select('*')
             .order('created_at', { ascending: false });

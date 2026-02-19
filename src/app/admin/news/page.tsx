@@ -25,7 +25,7 @@ export default function AdminNewsPage() {
 
     const fetchNews = useCallback(async () => {
         setIsLoading(true);
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('news')
             .select('*')
             .order('created_at', { ascending: false });

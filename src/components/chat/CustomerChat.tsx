@@ -30,7 +30,7 @@ export default function CustomerChat() {
 
     const fetchMessages = useCallback(async () => {
         if (!user) return;
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('messages')
             .select('*')
             .eq('user_id', user.id)
@@ -65,7 +65,7 @@ export default function CustomerChat() {
                 supabase.removeChannel(channel);
             };
         }
-    }, [user, isOpen, fetchMessages, supabase]);
+    }, [user, isOpen, fetchMessages]);
 
     useEffect(() => {
         scrollToBottom();

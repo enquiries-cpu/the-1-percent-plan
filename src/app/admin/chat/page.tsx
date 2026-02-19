@@ -62,7 +62,7 @@ export default function AdminChatPage() {
             return;
         }
 
-        const { data: profiles, error: profilesError } = await supabase
+        const { data: profiles } = await supabase
             .from('profiles')
             .select('id, email, display_name')
             .in('id', userIds);
@@ -79,7 +79,7 @@ export default function AdminChatPage() {
     }, []);
 
     const fetchMessages = useCallback(async (userId: string) => {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('messages')
             .select('*')
             .eq('user_id', userId)
