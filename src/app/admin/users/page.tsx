@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { UserProfile } from '@/context/AuthContext';
 import { Trash2, UserCog, Mail } from 'lucide-react';
@@ -11,6 +11,7 @@ const supabase = createClient();
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
+    const supabase = useMemo(() => createClient(), []);
 
     const fetchUsers = useCallback(async () => {
         const { data } = await supabase

@@ -1,12 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { Plus, Trash2, Send, Clock, BookOpen } from 'lucide-react';
-
-// Stable singleton client - avoids infinite useCallback loops
-const supabase = createClient();
 
 interface NewsItem {
     id: string;
@@ -22,6 +19,7 @@ export default function AdminNewsPage() {
     const [content, setContent] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const supabase = useMemo(() => createClient(), []);
 
     const fetchNews = useCallback(async () => {
         setIsLoading(true);

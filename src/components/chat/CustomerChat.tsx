@@ -1,12 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { MessageCircle, X, Send, User, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-
-// Stable singleton client - avoids infinite useCallback loops
-const supabase = createClient();
 
 interface Message {
     id: string;
@@ -23,6 +20,7 @@ export default function CustomerChat() {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const supabase = useMemo(() => createClient(), []);
 
     const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
