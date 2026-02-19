@@ -5,10 +5,12 @@ import { createClient } from '@/lib/supabase/client';
 import { UserProfile } from '@/context/AuthContext';
 import { Trash2, UserCog, Mail } from 'lucide-react';
 
+// Stable singleton client - avoids infinite useCallback loops
+const supabase = createClient();
+
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
-    const supabase = createClient();
 
     const fetchUsers = useCallback(async () => {
         const { data, error } = await supabase
@@ -18,7 +20,7 @@ export default function AdminUsersPage() {
 
         if (data) setUsers(data as any); // Cast for simplicity now
         setLoading(false);
-    }, [supabase]);
+    }, []);
 
     useEffect(() => {
         fetchUsers();

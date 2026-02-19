@@ -5,6 +5,9 @@ import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { Search, Send, User, MessageCircle, Clock, Check } from 'lucide-react';
 
+// Stable singleton client - avoids infinite useCallback loops
+const supabase = createClient();
+
 interface Message {
     id: string;
     user_id: string;
@@ -32,7 +35,6 @@ export default function AdminChatPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const supabase = createClient();
 
     const fetchUsers = useCallback(async () => {
         // ... (body of fetchUsers)
@@ -74,7 +76,7 @@ export default function AdminChatPage() {
             setUsers(usersList);
         }
         setIsLoading(false);
-    }, [supabase]);
+    }, []);
 
     const fetchMessages = useCallback(async (userId: string) => {
         const { data, error } = await supabase
@@ -90,7 +92,7 @@ export default function AdminChatPage() {
             .update({ is_read: true })
             .eq('user_id', userId)
             .eq('is_read', false);
-    }, [supabase]);
+    }, []);
 
     useEffect(() => {
         fetchUsers();
@@ -114,7 +116,7 @@ export default function AdminChatPage() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [selectedUserId, fetchUsers, supabase]);
+    }, [selectedUserId, fetchUsers]);
 
     useEffect(() => {
         if (selectedUserId) {

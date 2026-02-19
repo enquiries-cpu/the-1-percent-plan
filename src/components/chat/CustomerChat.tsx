@@ -5,6 +5,9 @@ import { MessageCircle, X, Send, User, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
+// Stable singleton client - avoids infinite useCallback loops
+const supabase = createClient();
+
 interface Message {
     id: string;
     user_id: string;
@@ -20,7 +23,6 @@ export default function CustomerChat() {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const supabase = createClient();
 
     const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -35,7 +37,7 @@ export default function CustomerChat() {
             .order('created_at', { ascending: true });
 
         if (data) setMessages(data);
-    }, [user, supabase]);
+    }, [user]);
 
     useEffect(() => {
         if (user && isOpen) {
