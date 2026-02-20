@@ -61,12 +61,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const supabase = useMemo(() => createClient(), []);
 
     // Fetch profile helper
-    const fetchProfile = useCallback(async (userId: string) => {
+    const fetchProfile = useCallback(async (userId: string, email?: string) => {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)
             .single();
+
+        if (error && error.code === 'PGRST116') {
+            // Profile missing, attempt to create it (Self-healing)
+            console.log('Profile missing for user, creating default...');
+            const { data: newProfile, error: insertError } = await supabase
+                .from('profiles')
+                .insert([
+                    {
+                        id: userId,
+                        email: email || '',
+                        display_name: email ? email.split('@')[0] : 'User',
+                        role: 'user'
+                    }
+                ])
+                .select()
+                .single();
+
+            if (insertError) {
+                console.error('Error creating profile:', insertError);
+                return null;
+            }
+            return newProfile as UserProfile;
+        }
 
         if (error) {
             console.error('Error fetching profile:', error);
@@ -81,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (session?.user) {
                 setUser(session.user);
-                const userProfile = await fetchProfile(session.user.id);
+                const userProfile = await fetchProfile(session.user.id, session.user.email);
                 setProfile(userProfile);
             } else {
                 setUser(null);
@@ -92,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                 if (session?.user) {
                     setUser(session.user);
-                    const userProfile = await fetchProfile(session.user.id);
+                    const userProfile = await fetchProfile(session.user.id, session.user.email);
                     setProfile(userProfile);
                 } else {
                     setUser(null);
